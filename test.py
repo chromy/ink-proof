@@ -40,11 +40,17 @@ class PlayerResult(object):
             self.status = SuccessStatus
 
     def describe(self):
+        diff_path = os.path.relpath(self.diff_job.stdout_path, 'out')
+        out_path = os.path.relpath(self.player_job.stdout_path, 'out')
+        err_path = os.path.relpath(self.player_job.stderr_path, 'out')
         return {
             "status": self.status.name,
-            "player": self.program.name,
+            "program": self.program.name,
             "example": self.example.name,
-            "diff": self.diff_job.stdout_path,
+            "diffPath": diff_path,
+            "outPath": out_path,
+            "errPath": err_path,
+            "exitcode": self.player_job.return_code,
         }
 
 class BytecodeExample(object):
@@ -58,11 +64,14 @@ class BytecodeExample(object):
         return self.name < o.name
 
     def describe(self):
+        source_path = os.path.relpath(self.bytecode_path)
+        input_path = os.path.relpath(self.input_path)
+        expected_path = os.path.relpath(self.transcript_path)
         return {
             "name": self.name,
-            "sourcePath": self.bytecode_path,
-            "inputPath": self.input_path,
-            "expectedOutputPath": self.transcript_path,
+            "sourcePath": source_path,
+            "inputPath": input_path,
+            "expectedPath": expected_path,
         }
 
     @staticmethod

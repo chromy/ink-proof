@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"/>
   </head>
   <body>
-    <main class="pa3 sans-serif"></main>
+    <main class="sans-serif"></main>
     <script src="https://unpkg.com/mithril/mithril.js"></script>
     <script>
       const Rollover = {
@@ -19,6 +19,8 @@
         results: [],
         statuses: {},
         exampleByName: {},
+        programByName: {},
+
         load() {
           return m.request({
             method: "GET",
@@ -30,18 +32,56 @@
             Data.results = result.results;
             Data.statuses = result.statuses;
             const exampleByName = {};
+            const programByName = {};
             for (const example of result.examples) {
               exampleByName[example.name] = example;
             }
+            for (const program of result.programs) {
+              programByName[program.name] = program;
+            }
             Data.exampleByName = exampleByName;
+            Data.programByName = programByName;
           });
         },
+      };
+
+      const Files = {
+        cached: {},
+        pending: {},
+
+        get(path) {
+          if (this.cached[path] !== undefined) {
+            return this.cached[path];
+          }
+          if (this.pending[path]) {
+            return '';
+          }
+          this.pending[path] = true;
+          m.request({
+            method: "GET",
+            responseType: "text",
+            url: path,
+          }).then(result => {
+            Files.pending[path] = false;
+            Files.cached[path] = result;
+          });
+        }
       };
 
       const FocusExample = {
         view(vnode) {
           const example = Data.exampleByName[vnode.attrs.exampleName];
-          return m('h1', vnode.attrs.exampleName);
+          return [
+            m("h1", "Example ", vnode.attrs.exampleName),
+            m(".fl.w-50.pa2",
+              m("p", "Bytecode"),
+              m(FileView, {path: example.sourcePath}),
+            ),
+            m(".fl.w-50.pa2",
+              m("p", "Input"),
+              m(FileView, {path: example.inputPath}),
+            ),
+          ];
         }
       };
 
@@ -51,19 +91,63 @@
         }
       };
 
+      const FileView = {
+        view(vnode) {
+          const text = Files.get(vnode.attrs.path);
+          return text === "" ? m('p', m("i.gray", "No output")) : m("pre", text);
+        },
+      };
+
       const FocusGolden = {
         view(vnode) {
           const example = Data.exampleByName[vnode.attrs.exampleName];
-          return m('h1', JSON.stringify(example));
+          return [
+            m('h1', "Expected output for ", vnode.attrs.exampleName),
+            m(FileView, {path: example.expectedPath}),
+          ];
+        }
+      };
+
+      const FocusProgram = {
+        view(vnode) {
+          const program = Data.programByName[vnode.attrs.programName];
+          return [
+            m('h1', "Program ", program.name),
+          ];
+        }
+      };
+
+      const FocusResult = {
+        view(vnode) {
+          const result = Data.results[vnode.attrs.resultIndex];
+          const program = Data.programByName[result.program];
+          const example = Data.exampleByName[result.example];
+
+          return [
+            m("h1", program.name, " x ", example.name),
+            m("h1", result.status),
+            m("h1", result.exitcode),
+              m("p", "stderr"),
+            m(FileView, {path: result.errPath}),
+              m("p", "stdout"),
+            m(FileView, {path: result.outPath}),
+              m("p", "Diff"),
+            m(FileView, {path: result.diffPath}),
+          ];
         }
       };
 
       const Overview = {
         view() {
           return [
-            m("h1.f-headline.f1.lh-title", "Overview"),
+            m("h1", "Overview"),
             m("table",
-              m("tr", m("th"), m("th"), Data.programs.map(p => m("th", p.name))),
+              m("tr", m("th"), m("th"), Data.programs.map(p => m("th",
+                m(m.route.Link, {
+                  href: `/program/${p.name}`,
+                  class: 'link',
+                  }, p.name),
+              ))),
               Data.examples.map((e, i) => m("tr",
                 m("td", m(m.route.Link, {
                   href: `/example/${e.name}`,
@@ -75,9 +159,13 @@
                   class: 'link',
                 }, "💛")),
                 [...Array(Data.programs.length).keys()].map(j => {
-                  const name = Data.results[i*Data.programs.length+j].status;
+                  const index = i*Data.programs.length+j;
+                  const name = Data.results[index].status;
                   const status = Data.statuses[name];
-                  return m("td.tc", status.symbol);
+                  return m("td.tc", m(m.route.Link, {
+                    href: `/result/${index}`,
+                    class: 'link',
+                  }, status.symbol));
                 }),
               )),
             ),
@@ -88,8 +176,8 @@
       const OverviewWithFocus = {
         view(vnode) {
           return [
-            m('.fl.w-50.pa2', m(Overview)),
-            m('.fl.w-50.pa2', vnode.children),
+            m(".fl.w-30", m(".pa3", m(Overview))),
+            m(".fl.w-70.bl", m(".pa3", vnode.children)),
           ];
         },
       }
@@ -119,6 +207,22 @@
             render(vnode) {
               return m(OverviewWithFocus, m(FocusGolden, {
                 exampleName: vnode.attrs.exampleName,
+              }));
+            },
+          },
+
+          "/program/:programName": {
+            render(vnode) {
+              return m(OverviewWithFocus, m(FocusProgram, {
+                programName: vnode.attrs.programName,
+              }));
+            },
+          },
+
+          "/result/:resultIndex": {
+            render(vnode) {
+              return m(OverviewWithFocus, m(FocusResult, {
+                resultIndex: vnode.attrs.resultIndex,
               }));
             },
           },
