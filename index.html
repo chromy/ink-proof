@@ -126,13 +126,30 @@
           return [
             m("h1", program.name, " x ", example.name),
             m("h1", result.status),
-            m("h1", result.exitcode),
-              m("p", "stderr"),
-            m(FileView, {path: result.errPath}),
-              m("p", "stdout"),
-            m(FileView, {path: result.outPath}),
-              m("p", "Diff"),
-            m(FileView, {path: result.diffPath}),
+            m("p", "Exit code: ", m("span.code", result.exitcode)),
+            (result.status === "CRASHED") ? [
+              m(".fl.w-50",
+                m("p", "stderr"),
+                m(FileView, {path: result.errPath}),
+              ),
+              m(".fl.w-50",
+                m("p", "stdout"),
+                m(FileView, {path: result.outPath}),
+              ),
+            ] : [
+              m(".fl.w-33",
+                m("p", "Expected output"),
+                m(FileView, {path: example.expectedPath}),
+              ),
+              m(".fl.w-33",
+                m("p", "Actual output"),
+                m(FileView, {path: result.outPath}),
+              ),
+              m(".fl.w-33",
+                m("p", "Diff"),
+                m(FileView, {path: result.diffPath}),
+              ),
+            ],
           ];
         }
       };

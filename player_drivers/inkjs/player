@@ -6,4 +6,3 @@ var bytecodePath = process.argv[2];
 var bytecode = fs.readFileSync(bytecodePath, 'UTF-8').replace(/^\uFEFF/, '');
 var story = new Story(bytecode)
 console.log(story.ContinueMaximally());
-console.log('asdsadas');

@@ -240,8 +240,8 @@ def main(root):
 
         jobs = []
         results = []
-        for i, player in enumerate(player_drivers):
-            for j, example in enumerate(bytecode_examples):
+        for j, example in enumerate(bytecode_examples):
+            for i, player in enumerate(player_drivers):
                 job_a = player_job(player, example, output_directory)
                 diff_path = os.path.join(output_directory, name(player, example, suffix='_diff.txt'))
                 job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
