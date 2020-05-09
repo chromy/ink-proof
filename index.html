@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"/>
+  </head>
+  <body>
+    <main class="pa3 sans-serif"></main>
+    <script src="https://unpkg.com/mithril/mithril.js"></script>
+    <script>
+      const Rollover = {
+        current: null,
+      };
+
+      const Data = {
+        data: {},
+        examples: [],
+        programs: [],
+        results: [],
+        statuses: {},
+        exampleByName: {},
+        load() {
+          return m.request({
+            method: "GET",
+            url: "summary.json",
+          }).then(result => {
+            Data.data = result;
+            Data.examples = result.examples;
+            Data.programs = result.programs;
+            Data.results = result.results;
+            Data.statuses = result.statuses;
+            const exampleByName = {};
+            for (const example of result.examples) {
+              exampleByName[example.name] = example;
+            }
+            Data.exampleByName = exampleByName;
+          });
+        },
+      };
+
+      const FocusExample = {
+        view(vnode) {
+          const example = Data.exampleByName[vnode.attrs.exampleName];
+          return m('h1', vnode.attrs.exampleName);
+        }
+      };
+
+      const FocusNothing = {
+        view() {
+          return null;
+        }
+      };
+
+      const FocusGolden = {
+        view(vnode) {
+          const example = Data.exampleByName[vnode.attrs.exampleName];
+          return m('h1', JSON.stringify(example));
+        }
+      };
+
+      const Overview = {
+        view() {
+          return [
+            m("h1.f-headline.f1.lh-title", "Overview"),
+            m("table",
+              m("tr", m("th"), m("th"), Data.programs.map(p => m("th", p.name))),
+              Data.examples.map((e, i) => m("tr",
+                m("td", m(m.route.Link, {
+                  href: `/example/${e.name}`,
+                  class: 'link',
+                  }, e.name),
+                ),
+                m("td.tc", m(m.route.Link, {
+                  href: `/golden/${e.name}`,
+                  class: 'link',
+                }, "💛")),
+                [...Array(Data.programs.length).keys()].map(j => {
+                  const name = Data.results[i*Data.programs.length+j].status;
+                  const status = Data.statuses[name];
+                  return m("td.tc", status.symbol);
+                }),
+              )),
+            ),
+          ];
+         }
+      };
+
+      const OverviewWithFocus = {
+        view(vnode) {
+          return [
+            m('.fl.w-50.pa2', m(Overview)),
+            m('.fl.w-50.pa2', vnode.children),
+          ];
+        },
+      }
+
+      async function main() {
+        Data.load();
+        const result = await fetch('summary.json');
+        const data = await result.json();
+        const root = document.querySelector('main');
+        m.route(root, "/", {
+
+          "/": {
+            render() {
+              return m(OverviewWithFocus, m(FocusNothing));
+            },
+          },
+
+          "/example/:exampleName": {
+            render(vnode) {
+              return m(OverviewWithFocus, m(FocusExample, {
+                exampleName: vnode.attrs.exampleName,
+              }));
+            },
+          },
+
+          "/golden/:exampleName": {
+            render(vnode) {
+              return m(OverviewWithFocus, m(FocusGolden, {
+                exampleName: vnode.attrs.exampleName,
+              }));
+            },
+          },
+
+        });
+      }
+
+      main();
+
+    </script>
+  </body>
+</html>
