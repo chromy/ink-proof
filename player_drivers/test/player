@@ -1,3 +1,15 @@
 #!/usr/bin/env python3
 
-exit(1)
+import sys
+import time
+
+bytecode_path = sys.argv[1]
+if "B001" in bytecode_path:
+    print("I crash on example B001!", file=sys.stderr)
+    exit(1)
+if "B002" in bytecode_path:
+    # I succeed on example B002
+    print("Hello, world!")
+if "B003" in bytecode_path:
+    time.sleep(30)
+

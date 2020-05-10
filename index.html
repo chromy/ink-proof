@@ -122,10 +122,24 @@
           const result = Data.results[vnode.attrs.resultIndex];
           const program = Data.programByName[result.program];
           const example = Data.exampleByName[result.example];
+          const status = Data.statuses[result.status];
 
           return [
-            m("h1", program.name, " x ", example.name),
-            m("h1", result.status),
+            m("h1",
+
+                m(m.route.Link, {
+                  href: `/program/${program.name}`,
+                  class: 'link',
+                  }, program.name),
+
+              " x ",
+
+                m(m.route.Link, {
+                  href: `/example/${example.name}`,
+                  class: 'link',
+                  }, example.name),
+            ),
+            m("h1", result.status, " ", m("span.f4.gray", status.description)),
             m("p", "Exit code: ", m("span.code", result.exitcode)),
             (result.status === "CRASHED") ? [
               m(".fl.w-50",

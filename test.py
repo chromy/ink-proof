@@ -19,10 +19,15 @@ class Status(object):
                 "description": self.description,
                 "symbol": self.symbol,}
 
-SuccessStatus = Status("SUCCESS", "💚", "")
+SuccessStatus = Status(
+    "SUCCESS",
+    "💚",
+    ""
+)
+
 ErrorStatus = Status("ERROR", "❌", "")
-CrashedStatus = Status("CRASHED", "🔥", "")
-TimeoutStatus = Status("TIMEOUT", "⌛", "")
+CrashedStatus = Status("CRASHED", "🔥", "The interpreter crashed on this input")
+TimeoutStatus = Status("TIMEOUT", "⌛", "The interpreter timed out")
 
 class PlayerResult(object):
     def __init__(self, program, example, player_job, diff_job):
@@ -32,7 +37,9 @@ class PlayerResult(object):
         self.diff_job = diff_job
 
     def settle(self):
-        if self.player_job.return_code != 0:
+        if self.player_job.timed_out:
+            self.status = TimeoutStatus
+        elif self.player_job.return_code != 0:
             self.status = CrashedStatus
         elif self.diff_job.return_code == 1:
             self.status = ErrorStatus
@@ -76,9 +83,9 @@ class BytecodeExample(object):
 
     @staticmethod
     def fromDirAndName(root, name):
-        bytecode_path = os.path.join(root, name + '.json')
-        input_path = os.path.join(root, name + '.input')
-        transcript_path = os.path.join(root, name + '.transcript')
+        bytecode_path = os.path.join(root, name, 'bytecode.json')
+        input_path = os.path.join(root, name, 'input.txt')
+        transcript_path = os.path.join(root, name, 'transcript.txt')
         return BytecodeExample(name, bytecode_path, input_path, transcript_path)
 
 class InkExample(object):
@@ -143,6 +150,7 @@ class Job(object):
         self.task = None
         self.deps = deps if deps else []
         self.return_code = None
+        self.timed_out = False
 
     def begin(self):
         self.task = asyncio.create_task(self.run())
@@ -158,7 +166,12 @@ class Job(object):
         ferr = open(self.stderr_path, 'wb') if self.stderr_path else None
         print('Running "{}"'.format(' '.join(self.command)))
         process = await asyncio.create_subprocess_exec(self.command[0], *self.command[1:], stdout=fout, stderr=ferr, stdin=fin)
-        self.return_code = await process.wait()
+        try:
+            self.return_code = await asyncio.wait_for(process.wait(), 0.5)
+        except asyncio.TimeoutError as e:
+            self.timed_out = True
+            process.terminate()
+            self.return_code = await asyncio.wait_for(process.wait(), 0.5)
         if fout:
             fout.close()
         if ferr:
