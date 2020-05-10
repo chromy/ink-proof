@@ -6,7 +6,9 @@ import tempfile
 import contextlib
 import json
 import shutil
+import argparse
 
+DEFAULT_TIMEOUT_S = 2
 
 class Status(object):
     def __init__(self, name, symbol, description):
@@ -47,8 +49,8 @@ class PlayerResult(object):
         elif self.player_job.return_code != 0:
             self.status = CrashedStatus
         elif self.diff_job.return_code == 1:
-            # inklecate has 0 exit code on exception
-            if os.path.getsize(self.player_job.stderr_path):
+            # inklecate has 0 exit code on exception and emits BOM
+            if os.path.getsize(self.player_job.stderr_path) > 5:
                 self.status = CrashedStatus
             else:
                 self.status = ErrorStatus
@@ -106,7 +108,8 @@ class BytecodeExample(object):
         return BytecodeExample(name, bytecode_path, input_path, transcript_path, metadata_path)
 
 class InkExample(object):
-    def __init__(self, ink_path, input_path, transcript_path):
+    def __init__(self, name, ink_path, input_path, transcript_path):
+        self.name = name
         self.ink_path = ink_path
         self.input_path = input_path
         self.transcript_path = transcript_path
@@ -116,10 +119,10 @@ class InkExample(object):
 
     @staticmethod
     def fromDirAndName(root, name):
-        ink_path = os.path.join(root, name + '.ink')
-        input_path = os.path.join(root, name + '.input')
-        transcript_path = os.path.join(root, name + '.transcript')
-        return InkExample(ink_path, input_path, transcript_path)
+        ink_path = os.path.join(root, name, 'story.ink')
+        input_path = os.path.join(root, name, 'input.txt')
+        transcript_path = os.path.join(root, name, 'transcript.txt')
+        return InkExample(name, ink_path, input_path, transcript_path)
 
 class PlayerDriver(object):
     def __init__(self, name, path):
@@ -160,7 +163,7 @@ def find_all_complier_drivers(root):
     return []
 
 class Job(object):
-    def __init__(self, command, stdout_path=None, stderr_path=None, stdin_path=None, deps=None):
+    def __init__(self, command, stdout_path=None, stderr_path=None, stdin_path=None, deps=None, timeout=DEFAULT_TIMEOUT_S):
         self.command = command
         self.stdin_path = stdin_path
         self.stderr_path = stderr_path
@@ -170,6 +173,7 @@ class Job(object):
         self.return_code = None
         self.timed_out = False
         self.infra_error = None
+        self.timeout = timeout
 
     def begin(self):
         self.task = asyncio.create_task(self.run())
@@ -192,11 +196,11 @@ class Job(object):
             self.infra_error = e
         else:
             try:
-                self.return_code = await asyncio.wait_for(process.wait(), 1)
+                self.return_code = await asyncio.wait_for(process.wait(), self.timeout)
             except asyncio.TimeoutError as e:
                 self.timed_out = True
                 process.terminate()
-                self.return_code = await asyncio.wait_for(process.wait(), 1)
+                self.return_code = await asyncio.wait_for(process.wait(), self.timeout)
         if fout:
             fout.close()
         if ferr:
@@ -207,10 +211,10 @@ class Job(object):
 def name(*things, suffix=None):
     return '_'.join([thing.name for thing in things]) + suffix
 
-def player_job(player, bytecode, output_directory):
+def player_job(player, bytecode, output_directory, timeout):
     stderr_path = os.path.join(output_directory, name(player, bytecode, suffix='_stderr.txt'))
     stdout_path = os.path.join(output_directory, name(player, bytecode, suffix='_stdout.txt'))
-    return Job([player.path, bytecode.bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=bytecode.input_path)
+    return Job([player.path, bytecode.bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=bytecode.input_path, timeout=timeout)
 
 def diff_job(a_path, b_path, out_path, deps=None):
     return Job(['diff', a_path, b_path], stdout_path=out_path, deps=deps)
@@ -272,6 +276,11 @@ def main(root):
     ink_examples = find_all_ink_examples(root)
     compiler_drivers = find_all_complier_drivers(root)
     player_drivers = find_all_player_drivers(root)
+
+    parser = argparse.ArgumentParser(description='Testing for Ink compilers and runtimes')
+    parser.add_argument('--timeout', default=DEFAULT_TIMEOUT_S, type=int, help=f'timeout for subprocesses (default: {DEFAULT_TIMEOUT_S}s)')
+    args = parser.parse_args()
+
     with contextlib.ExitStack() as context_stack:
         # output_directory = context_stack.enter_context(tempfile.TemporaryDirectory())
         output_directory = ensure_dir('out')
@@ -280,7 +289,7 @@ def main(root):
         results = []
         for j, example in enumerate(bytecode_examples):
             for i, player in enumerate(player_drivers):
-                job_a = player_job(player, example, output_directory)
+                job_a = player_job(player, example, output_directory, args.timeout)
                 diff_path = os.path.join(output_directory, name(player, example, suffix='_diff.txt'))
                 job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
                 jobs.append(job_a)

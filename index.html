@@ -97,7 +97,9 @@
       const FileView = {
         view(vnode) {
           const text = Files.get(vnode.attrs.path);
-          return text === "" ? m('p', m("i.gray", "No output")) : m("pre", text);
+          return text === "" ? m('p', m("i.gray", "No output")) : m("pre", {
+            style: "white-space: pre-wrap;",
+          }, text);
         },
       };
 
