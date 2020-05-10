@@ -13,6 +13,7 @@ jobs:
 
       - name: Build 🔧
         run: |
+          cd $GITHUB_WORKSPACE
           python3 proof.py
 
       - name: Deploy 🚀
