@@ -115,7 +115,15 @@
         view(vnode) {
           const program = Data.programByName[vnode.attrs.programName];
           return [
-            m('h1', "Program ", program.name),
+            m('h1', "Runtime ", program.name),
+          ];
+        }
+      };
+
+      const FocusMetadata = {
+        view(vnode) {
+          return [
+            m('h1', "Metadata"),
           ];
         }
       };
@@ -194,16 +202,37 @@
       const Overview = {
         view() {
           return [
-            m("h1", "ink-proof"),
-            m("table",
-              m("tr", m("th"), m("th"), Data.programs.map(p => m("th",
+            m("h1", "ink-proof", " ",
+
+                m(m.route.Link, {
+                  href: `/help`,
+                  class: 'link f4',
+                }, "Help"),
+                " ",
+                m(m.route.Link, {
+                  href: `/metadata`,
+                  class: 'link f4',
+                }, "Metadata"),
+
+            ),
+            m("table.center",
+              m("tr", m("th"), m("th"), Data.programs.map(p => m("th", {
+                    class: m.route.param("programName") === p.name
+                    ? "bg-light-yellow"
+                    : "hover-bg-light-yellow",
+                  },
                 m(m.route.Link, {
                   href: `/program/${p.name}`,
                   class: 'link',
                   }, p.name),
               ))),
               Data.examples.map((e, i) => m("tr",
-                m("td", m(m.route.Link, {
+                m("td", {
+                    class: m.route.param("exampleName") === e.name
+                    ? "bg-light-yellow"
+                    : "hover-bg-light-yellow",
+                  },
+                  m(m.route.Link, {
                   href: `/example/${e.name}`,
                   class: 'link',
                   }, e.name),
@@ -216,7 +245,12 @@
                   const index = i*Data.programs.length+j;
                   const name = Data.results[index].status;
                   const status = Data.statuses[name];
-                  return m("td.tc", m(m.route.Link, {
+                  const resultIndex = m.route.param("resultIndex");
+                  return m("td.tc", {
+                    class: resultIndex == index
+                    ? "bg-light-yellow"
+                    : "hover-bg-light-yellow",
+                  }, m(m.route.Link, {
                     href: `/result/${index}`,
                     class: 'link',
                   }, status.symbol));
@@ -285,6 +319,12 @@
           "/help": {
             render(vnode) {
               return m(OverviewWithFocus, m(FocusHelp));
+            },
+          },
+
+          "/metadata": {
+            render(vnode) {
+              return m(OverviewWithFocus, m(FocusMetadata));
             },
           },
 

@@ -26,8 +26,8 @@ SuccessStatus = Status(
 )
 
 ErrorStatus = Status("ERROR", "❌", "Actual output does not match expected")
-CrashedStatus = Status("CRASHED", "🔥", "The interpreter crashed on this input")
-TimeoutStatus = Status("TIMEOUT", "⌛", "The interpreter timed out")
+CrashedStatus = Status("CRASHED", "🔥", "The runtime crashed on this input")
+TimeoutStatus = Status("TIMEOUT", "⌛", "The runtime timed out")
 InfraErrorStatus = Status("INFRA_ERROR", "🏗️", "Infra error")
 
 class PlayerResult(object):
