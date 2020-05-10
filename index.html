@@ -134,8 +134,16 @@
         view(vnode) {
           const program = Data.programByName[vnode.attrs.programName];
           return [
-            m('h1', "Help"),
-            m("p.f7",
+            m("h1", "Help"),
+            m("p",
+              "This is ink-proof, a tool for acceptance testing of Ink compilers and runtimes.",
+              " ",
+              "Try clicking on an item in the grid on the left for more detail on it.",
+              " ",
+              "For more information see the ", m("a[href=https://github.com/chromy/ink-proof]", "ink-proof github page"), "."
+              ),
+
+            m("p.f6",
               m("b", "Key"),
                 Object.values(Data.statuses).map(s => m("", [s.symbol, "=", s.name])),
               ),
