@@ -25,9 +25,10 @@ SuccessStatus = Status(
     ""
 )
 
-ErrorStatus = Status("ERROR", "❌", "")
+ErrorStatus = Status("ERROR", "❌", "Actual output does not match expected")
 CrashedStatus = Status("CRASHED", "🔥", "The interpreter crashed on this input")
 TimeoutStatus = Status("TIMEOUT", "⌛", "The interpreter timed out")
+InfraErrorStatus = Status("INFRA_ERROR", "🏗️", "Infra error")
 
 class PlayerResult(object):
     def __init__(self, program, example, player_job, diff_job):
@@ -35,14 +36,22 @@ class PlayerResult(object):
         self.example = example
         self.player_job = player_job
         self.diff_job = diff_job
+        self.infra_error = None
 
     def settle(self):
         if self.player_job.timed_out:
             self.status = TimeoutStatus
+        elif self.player_job.infra_error:
+            self.status = InfraErrorStatus
+            self.infra_error = self.player_job.infra_error
         elif self.player_job.return_code != 0:
             self.status = CrashedStatus
         elif self.diff_job.return_code == 1:
-            self.status = ErrorStatus
+            # inklecate has 0 exit code on exception
+            if os.path.getsize(self.player_job.stderr_path):
+                self.status = CrashedStatus
+            else:
+                self.status = ErrorStatus
         else:
             self.status = SuccessStatus
 
@@ -50,7 +59,7 @@ class PlayerResult(object):
         diff_path = os.path.relpath(self.diff_job.stdout_path, 'out')
         out_path = os.path.relpath(self.player_job.stdout_path, 'out')
         err_path = os.path.relpath(self.player_job.stderr_path, 'out')
-        return {
+        description = {
             "status": self.status.name,
             "program": self.program.name,
             "example": self.example.name,
@@ -59,13 +68,17 @@ class PlayerResult(object):
             "errPath": err_path,
             "exitcode": self.player_job.return_code,
         }
+        if self.infra_error:
+            description["infraError"] = str(self.infra_error)
+        return description
 
 class BytecodeExample(object):
-    def __init__(self, name, bytecode_path, input_path, transcript_path):
+    def __init__(self, name, bytecode_path, input_path, transcript_path, metadata_path):
         self.name = name
         self.bytecode_path = bytecode_path
         self.input_path = input_path
         self.transcript_path = transcript_path
+        self.metadata_path = metadata_path
 
     def __lt__(self, o):
         return self.name < o.name
@@ -74,11 +87,14 @@ class BytecodeExample(object):
         source_path = os.path.relpath(self.bytecode_path)
         input_path = os.path.relpath(self.input_path)
         expected_path = os.path.relpath(self.transcript_path)
+        with open(self.metadata_path) as f:
+            metadata = json.load(f)
         return {
             "name": self.name,
             "sourcePath": source_path,
             "inputPath": input_path,
             "expectedPath": expected_path,
+            "metadata": metadata,
         }
 
     @staticmethod
@@ -86,7 +102,8 @@ class BytecodeExample(object):
         bytecode_path = os.path.join(root, name, 'bytecode.json')
         input_path = os.path.join(root, name, 'input.txt')
         transcript_path = os.path.join(root, name, 'transcript.txt')
-        return BytecodeExample(name, bytecode_path, input_path, transcript_path)
+        metadata_path = os.path.join(root, name, 'metadata.json')
+        return BytecodeExample(name, bytecode_path, input_path, transcript_path, metadata_path)
 
 class InkExample(object):
     def __init__(self, ink_path, input_path, transcript_path):
@@ -135,6 +152,7 @@ def find_all_player_drivers(root):
     folder = os.path.join(root, 'players')
     return sorted([
         PlayerDriver('inkjs', os.path.join(root, 'player_drivers', 'inkjs', 'player')),
+        PlayerDriver('inklecate', os.path.join(root, 'player_drivers', 'inklecate', 'player')),
         PlayerDriver('test', os.path.join(root, 'player_drivers', 'test', 'player')),
         ])
 
@@ -151,6 +169,7 @@ class Job(object):
         self.deps = deps if deps else []
         self.return_code = None
         self.timed_out = False
+        self.infra_error = None
 
     def begin(self):
         self.task = asyncio.create_task(self.run())
@@ -165,13 +184,19 @@ class Job(object):
         fout = open(self.stdout_path, 'wb') if self.stdout_path else None
         ferr = open(self.stderr_path, 'wb') if self.stderr_path else None
         print('Running "{}"'.format(' '.join(self.command)))
-        process = await asyncio.create_subprocess_exec(self.command[0], *self.command[1:], stdout=fout, stderr=ferr, stdin=fin)
         try:
-            self.return_code = await asyncio.wait_for(process.wait(), 0.5)
-        except asyncio.TimeoutError as e:
-            self.timed_out = True
-            process.terminate()
-            self.return_code = await asyncio.wait_for(process.wait(), 0.5)
+            process = await asyncio.create_subprocess_exec(self.command[0], *self.command[1:], stdout=fout, stderr=ferr, stdin=fin)
+        except PermissionError as e:
+            self.infra_error = e
+        except FileNotFoundError as e:
+            self.infra_error = e
+        else:
+            try:
+                self.return_code = await asyncio.wait_for(process.wait(), 1)
+            except asyncio.TimeoutError as e:
+                self.timed_out = True
+                process.terminate()
+                self.return_code = await asyncio.wait_for(process.wait(), 1)
         if fout:
             fout.close()
         if ferr:
@@ -215,7 +240,7 @@ def ensure_dir(directory):
 def write_json(fout, programs, examples, results):
     metadata = {}
     statuses = {status.name: status.describe() for status in [
-        ErrorStatus, SuccessStatus, TimeoutStatus, CrashedStatus]}
+        ErrorStatus, SuccessStatus, TimeoutStatus, CrashedStatus, InfraErrorStatus]}
     programs = [program.describe() for program in programs]
     examples = [example.describe() for example in examples]
     results = [result.describe() for result in results]

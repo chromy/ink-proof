@@ -72,7 +72,10 @@
         view(vnode) {
           const example = Data.exampleByName[vnode.attrs.exampleName];
           return [
-            m("h1", "Example ", vnode.attrs.exampleName),
+            m("h1",
+              "Example ",
+              vnode.attrs.exampleName, " ",
+              m("span.f3.gray", example.metadata.oneLineDescription)),
             m(".fl.w-50.pa2",
               m("p", "Bytecode"),
               m(FileView, {path: example.sourcePath}),
@@ -117,6 +120,21 @@
         }
       };
 
+      const FocusHelp = {
+        view(vnode) {
+          const program = Data.programByName[vnode.attrs.programName];
+          return [
+            m('h1', "Help"),
+            m("p.f7",
+              m("b", "Key"),
+                Object.values(Data.statuses).map(s => m("", [s.symbol, "=", s.name])),
+              ),
+
+
+          ];
+        }
+      };
+
       const FocusResult = {
         view(vnode) {
           const result = Data.results[vnode.attrs.resultIndex];
@@ -138,6 +156,8 @@
                   href: `/example/${example.name}`,
                   class: 'link',
                   }, example.name),
+              " ",
+              m("span.f3.gray", example.metadata.oneLineDescription),
             ),
             m("h1", result.status, " ", m("span.f4.gray", status.description)),
             m("p", "Exit code: ", m("span.code", result.exitcode)),
@@ -150,6 +170,9 @@
                 m("p", "stdout"),
                 m(FileView, {path: result.outPath}),
               ),
+            ] : (result.status === "INFRA_ERROR") ? [
+                m("p", "Exception"),
+                m("pre", result.infraError),
             ] : [
               m(".fl.w-33",
                 m("p", "Expected output"),
@@ -171,7 +194,7 @@
       const Overview = {
         view() {
           return [
-            m("h1", "Overview"),
+            m("h1", "ink-proof"),
             m("table",
               m("tr", m("th"), m("th"), Data.programs.map(p => m("th",
                 m(m.route.Link, {
@@ -200,6 +223,7 @@
                 }),
               )),
             ),
+
           ];
          }
       };
@@ -255,6 +279,12 @@
               return m(OverviewWithFocus, m(FocusResult, {
                 resultIndex: vnode.attrs.resultIndex,
               }));
+            },
+          },
+
+          "/help": {
+            render(vnode) {
+              return m(OverviewWithFocus, m(FocusHelp));
             },
           },
 

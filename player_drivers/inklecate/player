@@ -1,0 +1,2 @@
+#!/bin/bash
+~/src/ink/ReleaseBinary/inklecate $1 | gsed '1s/^\xEF\xBB\xBF//'
