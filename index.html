@@ -209,22 +209,27 @@
         }
       };
 
+      const Nav = {
+        view() {
+          return m(".bb.tc.center",
+              m("span.f6.f5-l.black-80.pa3.ph4-l", "ink-proof"),
+              m(m.route.Link, {
+                href: `/help`,
+                class: 'f6 f5-l link bg-animate black-80 hover-bg-lightest-blue dib pa3 ph4-l',
+              }, "Help"),
+              " ",
+              m(m.route.Link, {
+                href: `/metadata`,
+                class: 'f6 f5-l link bg-animate black-80 hover-bg-lightest-blue dib pa3 ph4-l',
+              }, "Metadata"),
+
+            );
+        }}
+
+
       const Overview = {
         view() {
           return [
-            m("h1", "ink-proof", " ",
-
-                m(m.route.Link, {
-                  href: `/help`,
-                  class: 'link f4',
-                }, "Help"),
-                " ",
-                m(m.route.Link, {
-                  href: `/metadata`,
-                  class: 'link f4',
-                }, "Metadata"),
-
-            ),
             m("table.center",
               m("tr", m("th"), m("th"), Data.programs.map(p => m("th", {
                     class: m.route.param("programName") === p.name
@@ -276,7 +281,7 @@
         view(vnode) {
           return [
             m(".fl.w-30", m(".pa3", m(Overview))),
-            m(".fl.w-70.bl", m(".pa3", vnode.children)),
+            m(".fl.w-70.bl", m(Nav), m(".pa3", vnode.children)),
           ];
         },
       }
@@ -286,13 +291,13 @@
         const result = await fetch('summary.json');
         const data = await result.json();
         const root = document.querySelector('main');
-        m.route(root, "/", {
+        m.route(root, "/help", {
 
-          "/": {
-            render() {
-              return m(OverviewWithFocus, m(FocusNothing));
-            },
-          },
+          // "/": {
+          //   render() {
+          //     return m(OverviewWithFocus, m(FocusNothing));
+          //   },
+          // },
 
           "/example/:exampleName": {
             render(vnode) {
