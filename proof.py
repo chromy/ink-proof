@@ -8,7 +8,10 @@ import json
 import shutil
 import argparse
 
+DEFAULT_OUT_PATH = os.path.abspath("out")
 DEFAULT_TIMEOUT_S = 2
+DEFAULT_COMPILER = "inklecate"
+DEFAULT_RUNTIME = "inklecore"
 
 class Status(object):
     def __init__(self, name, symbol, description):
@@ -28,7 +31,8 @@ SuccessStatus = Status(
 )
 
 ErrorStatus = Status("ERROR", "❌", "Actual output does not match expected")
-CrashedStatus = Status("CRASHED", "🔥", "The runtime crashed on this input")
+ErrorRuntimeCrashedStatus = Status("CRASHED", "🔥", "The runtime crashed on this input")
+ErrorCompilerCrashedStatus = Status("CRASHED", "🔥", "The compiler crashed on this input")
 TimeoutStatus = Status("TIMEOUT", "⌛", "The runtime timed out")
 InfraErrorStatus = Status("INFRA_ERROR", "🏗️", "Infra error")
 
@@ -47,11 +51,11 @@ class PlayerResult(object):
             self.status = InfraErrorStatus
             self.infra_error = self.player_job.infra_error
         elif self.player_job.return_code != 0:
-            self.status = CrashedStatus
+            self.status = ErrorRuntimeCrashedStatus
         elif self.diff_job.return_code == 1:
             # inklecate has 0 exit code on exception and emits BOM
             if os.path.getsize(self.player_job.stderr_path) > 5:
-                self.status = CrashedStatus
+                self.status = ErrorRuntimeCrashedStatus
             else:
                 self.status = ErrorStatus
         else:
@@ -74,6 +78,70 @@ class PlayerResult(object):
             description["infraError"] = str(self.infra_error)
         return description
 
+class CompilerResult(object):
+    def __init__(self, compiler, runtime, example, compile_job, player_job, diff_job):
+        self.compiler = compiler
+        self.runtime = runtime
+        self.example = example
+        self.compile_job = compile_job
+        self.player_job = player_job
+        self.diff_job = diff_job
+        self.infra_error = None
+
+    def settle(self):
+        if self.compile_job.timed_out:
+            self.status = TimeoutStatus
+        elif self.compile_job.return_code:
+            self.status = ErrorCompilerCrashedStatus
+        elif self.player_job.timed_out:
+            self.status = TimeoutStatus
+        elif self.player_job.infra_error:
+            self.status = InfraErrorStatus
+            self.infra_error = self.player_job.infra_error
+        elif self.player_job.return_code != 0:
+            self.status = ErrorRuntimeCrashedStatus
+        elif self.diff_job.return_code == 1:
+            # inklecate has 0 exit code on exception and emits BOM
+            if os.path.getsize(self.player_job.stderr_path) > 5:
+                self.status = ErrorRuntimeCrashedStatus
+            else:
+                self.status = ErrorStatus
+        else:
+            self.status = SuccessStatus
+
+    def describe(self):
+        diff_path = os.path.relpath(self.diff_job.stdout_path, 'out')
+        out_path = os.path.relpath(self.player_job.stdout_path, 'out')
+        err_path = os.path.relpath(self.player_job.stderr_path, 'out')
+
+        compile_stdout_path = os.path.relpath(self.compile_job.stdout_path, 'out')
+        compile_stderr_path = os.path.relpath(self.compile_job.stderr_path, 'out')
+        compile_bytecode_path = os.path.relpath(self.compile_job.out_path, 'out')
+
+        description = {
+            "status": self.status.name,
+            "program": self.compiler.name,
+            "compiler": self.compiler.name,
+            "runtime": self.runtime.name,
+            "example": self.example.name,
+            "diffPath": diff_path,
+            "outPath": out_path,
+            "errPath": err_path,
+            "compileOutPath": compile_stdout_path,
+            "compileErrPath": compile_stderr_path,
+            "compileBytecodePath": compile_bytecode_path,
+            "compilerExitcode": self.compile_job.return_code,
+            "diffExitcode": self.diff_job.return_code,
+            "exitcode": self.player_job.return_code,
+        }
+        if self.infra_error:
+            description["infraError"] = str(self.infra_error)
+        return description
+
+def check_path(path):
+    if not os.path.isfile(path):
+        raise FileNotFoundError(path)
+
 class BytecodeExample(object):
     def __init__(self, name, bytecode_path, input_path, transcript_path, metadata_path):
         self.name = name
@@ -84,6 +152,9 @@ class BytecodeExample(object):
 
     def __lt__(self, o):
         return self.name < o.name
+
+    def check(self):
+        check_path(self.bytecode_path)
 
     def describe(self):
         source_path = os.path.relpath(self.bytecode_path)
@@ -108,21 +179,42 @@ class BytecodeExample(object):
         return BytecodeExample(name, bytecode_path, input_path, transcript_path, metadata_path)
 
 class InkExample(object):
-    def __init__(self, name, ink_path, input_path, transcript_path):
+    def __init__(self, name, ink_path, input_path, transcript_path, metadata_path):
         self.name = name
         self.ink_path = ink_path
         self.input_path = input_path
         self.transcript_path = transcript_path
+        self.metadata_path = metadata_path
 
     def __lt__(self, o):
         return self.name < o.name
+
+    def describe(self):
+        source_path = os.path.relpath(self.ink_path)
+        input_path = os.path.relpath(self.input_path)
+        expected_path = os.path.relpath(self.transcript_path)
+        with open(self.metadata_path) as f:
+            metadata = json.load(f)
+        return {
+            "name": self.name,
+            "sourcePath": source_path,
+            "inputPath": input_path,
+            "expectedPath": expected_path,
+            "metadata": metadata,
+        }
+
+    def check(self):
+        check_path(self.transcript_path)
 
     @staticmethod
     def fromDirAndName(root, name):
         ink_path = os.path.join(root, name, 'story.ink')
         input_path = os.path.join(root, name, 'input.txt')
         transcript_path = os.path.join(root, name, 'transcript.txt')
-        return InkExample(name, ink_path, input_path, transcript_path)
+        metadata_path = os.path.join(root, name, 'metadata.json')
+        return InkExample(name, ink_path, input_path, transcript_path, metadata_path)
+
+
 
 class PlayerDriver(object):
     def __init__(self, name, path):
@@ -135,6 +227,21 @@ class PlayerDriver(object):
     def describe(self):
         return {
             "name": self.name,
+            "kind": "Runtime",
+        }
+
+class CompilerDriver(object):
+    def __init__(self, name, path):
+        self.name = name
+        self.path = path
+
+    def __lt__(self, o):
+        return self.name < o.name
+
+    def describe(self):
+        return {
+            "name": self.name,
+            "kind": "Compiler",
         }
 
 def find_all_bytecode_examples(root):
@@ -155,12 +262,14 @@ def find_all_player_drivers(root):
     folder = os.path.join(root, 'players')
     return sorted([
         PlayerDriver('inkjs', os.path.join(root, 'player_drivers', 'inkjs', 'player')),
-        PlayerDriver('inklecate', os.path.join(root, 'player_drivers', 'inklecate', 'player')),
+        PlayerDriver('inklecore', os.path.join(root, 'player_drivers', 'inklecate', 'player')),
         PlayerDriver('test', os.path.join(root, 'player_drivers', 'test', 'player')),
-        ])
+    ])
 
 def find_all_complier_drivers(root):
-    return []
+    return sorted([
+        CompilerDriver("inklecate", os.path.join(root, 'drivers', 'inklecate_compiler_driver')),
+    ])
 
 class Job(object):
     def __init__(self, command, stdout_path=None, stderr_path=None, stdin_path=None, deps=None, timeout=DEFAULT_TIMEOUT_S):
@@ -211,10 +320,24 @@ class Job(object):
 def name(*things, suffix=None):
     return '_'.join([thing.name for thing in things]) + suffix
 
-def player_job(player, bytecode, output_directory, timeout):
+def player_job(player, bytecode, output_directory, timeout, deps=None):
     stderr_path = os.path.join(output_directory, name(player, bytecode, suffix='_stderr.txt'))
     stdout_path = os.path.join(output_directory, name(player, bytecode, suffix='_stdout.txt'))
-    return Job([player.path, bytecode.bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=bytecode.input_path, timeout=timeout)
+    return Job([player.path, bytecode.bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=bytecode.input_path, timeout=timeout, deps=deps)
+
+
+def compile_player_job(compiler, player, example, bytecode_path, output_directory, timeout, deps=None):
+    stderr_path = os.path.join(output_directory, name(compiler, player, example, suffix='_stderr.txt'))
+    stdout_path = os.path.join(output_directory, name(compiler, player, example, suffix='_stdout.txt'))
+    return Job([player.path, bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=example.input_path, timeout=timeout, deps=deps)
+
+def compile_job(compiler, ink, output_directory, timeout):
+    stderr_path = os.path.join(output_directory, name(compiler, ink, suffix='_stderr.txt'))
+    stdout_path = os.path.join(output_directory, name(compiler, ink, suffix='_stdout.txt'))
+    out_path = os.path.join(output_directory, name(compiler, ink, suffix='_out.json'))
+    job = Job([compiler.path, "-o", out_path, ink.ink_path], stderr_path=stderr_path, stdout_path=stdout_path, timeout=timeout)
+    job.out_path = out_path
+    return job
 
 def diff_job(a_path, b_path, out_path, deps=None):
     return Job(['diff', a_path, b_path], stdout_path=out_path, deps=deps)
@@ -241,18 +364,25 @@ def ensure_dir(directory):
         os.makedirs(directory)
     return directory
 
-def write_json(fout, programs, examples, results):
+def write_json(fout, runtimes, compilers, examples, results):
     metadata = {}
     statuses = {status.name: status.describe() for status in [
-        ErrorStatus, SuccessStatus, TimeoutStatus, CrashedStatus, InfraErrorStatus]}
-    programs = [program.describe() for program in programs]
+        ErrorStatus,
+        SuccessStatus,
+        TimeoutStatus,
+        ErrorRuntimeCrashedStatus,
+        ErrorCompilerCrashedStatus,
+        InfraErrorStatus,
+    ]}
+    runtimes = [runtime.describe() for runtime in runtimes]
+    compilers = [compiler.describe() for compiler in compilers]
     examples = [example.describe() for example in examples]
     results = [result.describe() for result in results]
 
     json.dump({
         "metadata": metadata,
         "statuses": statuses,
-        "programs": programs,
+        "programs": compilers + runtimes,
         "examples": examples,
         "results": results,
     }, fout)
@@ -278,15 +408,63 @@ def main(root):
     player_drivers = find_all_player_drivers(root)
 
     parser = argparse.ArgumentParser(description='Testing for Ink compilers and runtimes')
+    parser.add_argument('--out', default=DEFAULT_OUT_PATH, help=f'output directory (default: {DEFAULT_OUT_PATH})')
+    parser.add_argument('--list-drivers', action='store_true', help='list found drivers')
     parser.add_argument('--timeout', default=DEFAULT_TIMEOUT_S, type=int, help=f'timeout for subprocesses (default: {DEFAULT_TIMEOUT_S}s)')
+    parser.add_argument('--reference-runtime', default=DEFAULT_RUNTIME, help=f'set the reference runtime (default: {DEFAULT_RUNTIME})')
+    parser.add_argument('--reference-compiler', default=DEFAULT_COMPILER, help=f'set the reference compiler (default: {DEFAULT_COMPILER})')
     args = parser.parse_args()
+
+
+    if args.reference_runtime not in [d.name for d in player_drivers]:
+        runtimes = ", ".join([d.name for d in player_drivers])
+        parser.error(f"Runtime '{args.reference_runtime}' unknown. Available runtimes: {runtimes}")
+    if args.reference_compiler not in [d.name for d in compiler_drivers]:
+        compilers = ", ".join([d.name for d in compiler_drivers])
+        parser.error(f"Compiler '{args.reference_compiler}' unknown. Available compilers: {compilers}")
+
+    reference_runtime, = [d for d in player_drivers if d.name == args.reference_runtime]
+    reference_compiler, = [d for d in compiler_drivers if d.name == args.reference_compiler]
+
+    if args.list_drivers:
+        print("Available runtimes:")
+        for d in player_drivers:
+            suffix = " (reference runtime)" if d == reference_runtime else ""
+            print(f"\t{d.name}{suffix}")
+        print("Available compilers:")
+        for d in compiler_drivers:
+            suffix = " (reference compiler)" if d == reference_compiler else ""
+            print(f"\t{d.name}{suffix}")
+        return 0
+
+    try:
+        for example in bytecode_examples + ink_examples:
+            example.check()
+    except FileNotFoundError as e:
+        print(f"Example {example.name} invalid. Missing file '{e}'", file=sys.stderr)
+        exit(1)
 
     with contextlib.ExitStack() as context_stack:
         # output_directory = context_stack.enter_context(tempfile.TemporaryDirectory())
         output_directory = ensure_dir('out')
 
+
         jobs = []
         results = []
+
+        refrence_compile_job = {}
+        for j, example in enumerate(ink_examples):
+            for i, compiler in enumerate(compiler_drivers):
+                job_a = compile_job(compiler, example, output_directory, args.timeout)
+                job_b = compile_player_job(compiler, reference_runtime, example, job_a.out_path, output_directory, args.timeout, deps=[job_a])
+                diff_path = os.path.join(output_directory, name(compiler, reference_runtime, example, suffix='_diff.txt'))
+                job_c = diff_job(example.transcript_path, job_b.stdout_path, diff_path, deps=[job_b])
+                jobs.extend([job_a, job_b, job_c])
+
+                results.append(CompilerResult(compiler, reference_runtime, example, job_a, job_b, job_c))
+                if compiler == reference_compiler:
+                    refrence_compile_job[example] = job_a
+
         for j, example in enumerate(bytecode_examples):
             for i, player in enumerate(player_drivers):
                 job_a = player_job(player, example, output_directory, args.timeout)
@@ -301,7 +479,7 @@ def main(root):
             result.settle()
         fout = context_stack.enter_context(open(os.path.join(output_directory, 'summary.json'), 'w'))
 
-        write_json(fout, player_drivers, bytecode_examples, results)
+        write_json(fout, player_drivers, compiler_drivers, bytecode_examples+ink_examples, results)
         shutil.copyfile(os.path.join(root, 'index.html'), os.path.join(output_directory, 'index.html'))
 
         output_bytecode_path = os.path.join(output_directory, 'bytecode')
@@ -309,7 +487,10 @@ def main(root):
             shutil.rmtree(os.path.join(output_directory, 'bytecode'))
         shutil.copytree(os.path.join(root, 'bytecode'), output_bytecode_path)
 
-
+        output_ink_path = os.path.join(output_directory, 'ink')
+        if os.path.exists(output_ink_path):
+            shutil.rmtree(os.path.join(output_directory, 'ink'))
+        shutil.copytree(os.path.join(root, 'ink'), output_ink_path)
 
 if __name__ == '__main__':
     root = os.path.dirname(os.path.abspath(__file__))
