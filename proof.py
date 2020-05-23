@@ -284,18 +284,23 @@ def find_all_ink_examples(root):
     return sorted(examples)
 
 def find_all_player_drivers(root):
-    folder = os.path.join(root, 'players')
-    return sorted([
-        PlayerDriver('inkjs', os.path.join(root, 'player_drivers', 'inkjs', 'player')),
-        PlayerDriver('inklecore', os.path.join(root, 'player_drivers', 'inklecate', 'player')),
-        PlayerDriver('test_runtime', os.path.join(root, 'drivers', 'test_runtime_runtime_driver')),
-    ])
+    folder = os.path.join(root, 'drivers')
+    files = os.listdir(folder)
+    suffix = "_runtime_driver"
+    names = [name for name in files if name.endswith(suffix)]
+    drivers = [PlayerDriver(name[:-len(suffix)], os.path.join(root, "drivers", name)) for name in names]
+    return sorted(drivers +
+        [PlayerDriver('inkjs', os.path.join(root, 'player_drivers', 'inkjs', 'player')),
+        PlayerDriver('inklecore', os.path.join(root, 'player_drivers', 'inklecate', 'player'))])
 
 def find_all_complier_drivers(root):
-    return sorted([
-        CompilerDriver("inklecate", os.path.join(root, 'drivers', 'inklecate_compiler_driver')),
-        CompilerDriver("test_compiler", os.path.join(root, 'drivers', 'test_compiler_compiler_driver')),
-    ])
+    folder = os.path.join(root, 'drivers')
+    files = os.listdir(folder)
+    suffix = "_compiler_driver"
+    names = [name for name in files if name.endswith(suffix)]
+    drivers = [CompilerDriver(name[:-len(suffix)], os.path.join(root, "drivers", name)) for name in names]
+    return sorted(drivers)
+
 
 class Job(object):
     def __init__(self, command, stdout_path=None, stderr_path=None, stdin_path=None, deps=None, timeout=DEFAULT_TIMEOUT_S, expected_paths=None):
@@ -350,24 +355,24 @@ class Job(object):
         if fin:
             fin.close()
 
-def name(*things, suffix=None):
+def make_name(*things, suffix=None):
     return '_'.join([thing.name for thing in things]) + suffix
 
 def player_job(player, bytecode, output_directory, timeout, deps=None):
-    stderr_path = os.path.join(output_directory, name(player, bytecode, suffix='_stderr.txt'))
-    stdout_path = os.path.join(output_directory, name(player, bytecode, suffix='_stdout.txt'))
+    stderr_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stderr.txt'))
+    stdout_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stdout.txt'))
     return Job([player.path, bytecode.bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=bytecode.input_path, timeout=timeout, deps=deps)
 
 
 def compile_player_job(compiler, player, example, bytecode_path, output_directory, timeout, deps=None):
-    stderr_path = os.path.join(output_directory, name(compiler, player, example, suffix='_stderr.txt'))
-    stdout_path = os.path.join(output_directory, name(compiler, player, example, suffix='_stdout.txt'))
+    stderr_path = os.path.join(output_directory, make_name(compiler, player, example, suffix='_stderr.txt'))
+    stdout_path = os.path.join(output_directory, make_name(compiler, player, example, suffix='_stdout.txt'))
     return Job([player.path, bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=example.input_path, timeout=timeout, deps=deps, expected_paths=[bytecode_path])
 
 def compile_job(compiler, ink, output_directory, timeout):
-    stderr_path = os.path.join(output_directory, name(compiler, ink, suffix='_stderr.txt'))
-    stdout_path = os.path.join(output_directory, name(compiler, ink, suffix='_stdout.txt'))
-    out_path = os.path.join(output_directory, name(compiler, ink, suffix='_out.json'))
+    stderr_path = os.path.join(output_directory, make_name(compiler, ink, suffix='_stderr.txt'))
+    stdout_path = os.path.join(output_directory, make_name(compiler, ink, suffix='_stdout.txt'))
+    out_path = os.path.join(output_directory, make_name(compiler, ink, suffix='_out.json'))
     job = Job([compiler.path, "-o", out_path, ink.ink_path], stderr_path=stderr_path, stdout_path=stdout_path, timeout=timeout)
     job.out_path = out_path
     return job
@@ -441,21 +446,30 @@ def main(root):
     compiler_drivers = find_all_complier_drivers(root)
     player_drivers = find_all_player_drivers(root)
 
+    available_runtimes = [d.name for d in player_drivers]
+    available_compilers = [d.name for d in compiler_drivers]
+    available_drivers = available_runtimes + available_compilers
+    default_drivers = [name for name in available_drivers if "test" not in name]
+
     parser = argparse.ArgumentParser(description='Testing for Ink compilers and runtimes')
     parser.add_argument('--out', default=DEFAULT_OUT_PATH, help=f'output directory (default: {DEFAULT_OUT_PATH})')
     parser.add_argument('--list-drivers', action='store_true', help='list found drivers')
     parser.add_argument('--timeout', default=DEFAULT_TIMEOUT_S, type=int, help=f'timeout for subprocesses (default: {DEFAULT_TIMEOUT_S}s)')
     parser.add_argument('--reference-runtime', default=DEFAULT_RUNTIME, help=f'set the reference runtime (default: {DEFAULT_RUNTIME})')
     parser.add_argument('--reference-compiler', default=DEFAULT_COMPILER, help=f'set the reference compiler (default: {DEFAULT_COMPILER})')
+    parser.add_argument('drivers', nargs='*', default=default_drivers, help=f'drivers to test (default: {" ".join(default_drivers)}) (available: {" ".join(available_runtimes+available_compilers)})')
     args = parser.parse_args()
 
-
-    if args.reference_runtime not in [d.name for d in player_drivers]:
-        runtimes = ", ".join([d.name for d in player_drivers])
+    if args.reference_runtime not in available_runtimes:
+        runtimes = ", ".join(available_runtimes)
         parser.error(f"Runtime '{args.reference_runtime}' unknown. Available runtimes: {runtimes}")
-    if args.reference_compiler not in [d.name for d in compiler_drivers]:
-        compilers = ", ".join([d.name for d in compiler_drivers])
+    if args.reference_compiler not in available_compilers:
+        compilers = ", ".join(available_compilers)
         parser.error(f"Compiler '{args.reference_compiler}' unknown. Available compilers: {compilers}")
+    for name in args.drivers:
+        if name not in available_runtimes and name not in available_compilers:
+            drivers = ", ".join(available_drivers)
+            parser.error(f"Driver '{name}' unknown. Available drivers: {drivers}")
 
     reference_runtime, = [d for d in player_drivers if d.name == args.reference_runtime]
     reference_compiler, = [d for d in compiler_drivers if d.name == args.reference_compiler]
@@ -470,6 +484,15 @@ def main(root):
             suffix = " (reference compiler)" if d == reference_compiler else ""
             print(f"\t{d.name}{suffix}")
         return 0
+
+    selected_compilers = []
+    selected_runtimes = []
+    for d in compiler_drivers:
+        if d.name in args.drivers:
+            selected_compilers.append(d)
+    for d in player_drivers:
+        if d.name in args.drivers:
+            selected_runtimes.append(d)
 
     try:
         for example in bytecode_examples + ink_examples:
@@ -488,10 +511,10 @@ def main(root):
 
         refrence_compile_job = {}
         for j, example in enumerate(ink_examples):
-            for i, compiler in enumerate(compiler_drivers):
+            for i, compiler in enumerate(selected_compilers):
                 job_a = compile_job(compiler, example, output_directory, args.timeout)
                 job_b = compile_player_job(compiler, reference_runtime, example, job_a.out_path, output_directory, args.timeout, deps=[job_a])
-                diff_path = os.path.join(output_directory, name(compiler, reference_runtime, example, suffix='_diff.txt'))
+                diff_path = os.path.join(output_directory, make_name(compiler, reference_runtime, example, suffix='_diff.txt'))
                 job_c = diff_job(example.transcript_path, job_b.stdout_path, diff_path, deps=[job_b])
                 jobs.extend([job_a, job_b, job_c])
 
@@ -500,9 +523,9 @@ def main(root):
                     refrence_compile_job[example] = job_a
 
         for j, example in enumerate(bytecode_examples):
-            for i, player in enumerate(player_drivers):
+            for i, player in enumerate(selected_runtimes):
                 job_a = player_job(player, example, output_directory, args.timeout)
-                diff_path = os.path.join(output_directory, name(player, example, suffix='_diff.txt'))
+                diff_path = os.path.join(output_directory, make_name(player, example, suffix='_diff.txt'))
                 job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
                 jobs.append(job_a)
                 jobs.append(job_b)
@@ -513,7 +536,7 @@ def main(root):
             result.settle()
         fout = context_stack.enter_context(open(os.path.join(output_directory, 'summary.json'), 'w'))
 
-        write_json(fout, player_drivers, compiler_drivers, bytecode_examples+ink_examples, results)
+        write_json(fout, selected_runtimes, selected_compilers, bytecode_examples+ink_examples, results)
         shutil.copyfile(os.path.join(root, 'index.html'), os.path.join(output_directory, 'index.html'))
 
         output_bytecode_path = os.path.join(output_directory, 'bytecode')
