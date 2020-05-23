@@ -13,16 +13,30 @@ DEFAULT_TIMEOUT_S = 2
 DEFAULT_COMPILER = "inklecate"
 DEFAULT_RUNTIME = "inklecore"
 
+class SummaryItem(object):
+    def __init__(self, name, human_name):
+        self.name = name
+        self.human_name = human_name
+
+    def describe(self):
+        return {
+                "name": self.name,
+                "humanName": self.human_name,
+                }
+
 class Status(object):
-    def __init__(self, name, symbol, description):
+    def __init__(self, name, symbol, description, summary=None):
         self.name = name
         self.symbol = symbol
         self.description = description
+        self.summary = summary if summary else []
 
     def describe(self):
         return {"name": self.name,
                 "description": self.description,
-                "symbol": self.symbol,}
+                "symbol": self.symbol,
+                "summary": [s.describe() for s in self.summary],
+                }
 
 SuccessStatus = Status(
     "SUCCESS",
@@ -31,9 +45,13 @@ SuccessStatus = Status(
 )
 
 ErrorStatus = Status("ERROR", "❌", "Actual output does not match expected")
+ErrorCompilerDidNotOutputStatus = Status("ERROR", "❌", "The compiler did not produce output")
 ErrorRuntimeCrashedStatus = Status("CRASHED", "🔥", "The runtime crashed on this input")
 ErrorCompilerCrashedStatus = Status("CRASHED", "🔥", "The compiler crashed on this input")
-TimeoutStatus = Status("TIMEOUT", "⌛", "The runtime timed out")
+TimeoutStatus = Status("TIMEOUT", "⌛", "The runtime timed out",
+    [SummaryItem("exitcode", "Exit code"), SummaryItem("outPath", "stdout"), SummaryItem("errPath", "stderr")]
+
+        )
 InfraErrorStatus = Status("INFRA_ERROR", "🏗️", "Infra error")
 
 class PlayerResult(object):
@@ -73,6 +91,7 @@ class PlayerResult(object):
             "outPath": out_path,
             "errPath": err_path,
             "exitcode": self.player_job.return_code,
+            "playCmdline": self.player_job.command,
         }
         if self.infra_error:
             description["infraError"] = str(self.infra_error)
@@ -91,8 +110,13 @@ class CompilerResult(object):
     def settle(self):
         if self.compile_job.timed_out:
             self.status = TimeoutStatus
+        elif self.compile_job.infra_error:
+            self.status = InfraErrorStatus
+            self.infra_error = self.compile_job.infra_error
         elif self.compile_job.return_code:
             self.status = ErrorCompilerCrashedStatus
+        elif not os.path.isfile(self.compile_job.out_path):
+            self.status = ErrorCompilerDidNotOutputStatus
         elif self.player_job.timed_out:
             self.status = TimeoutStatus
         elif self.player_job.infra_error:
@@ -127,6 +151,7 @@ class CompilerResult(object):
             "diffPath": diff_path,
             "outPath": out_path,
             "errPath": err_path,
+            "compileCmdline": self.compile_job.command,
             "compileOutPath": compile_stdout_path,
             "compileErrPath": compile_stderr_path,
             "compileBytecodePath": compile_bytecode_path,
@@ -263,16 +288,17 @@ def find_all_player_drivers(root):
     return sorted([
         PlayerDriver('inkjs', os.path.join(root, 'player_drivers', 'inkjs', 'player')),
         PlayerDriver('inklecore', os.path.join(root, 'player_drivers', 'inklecate', 'player')),
-        PlayerDriver('test', os.path.join(root, 'player_drivers', 'test', 'player')),
+        PlayerDriver('test_runtime', os.path.join(root, 'drivers', 'test_runtime_runtime_driver')),
     ])
 
 def find_all_complier_drivers(root):
     return sorted([
         CompilerDriver("inklecate", os.path.join(root, 'drivers', 'inklecate_compiler_driver')),
+        CompilerDriver("test_compiler", os.path.join(root, 'drivers', 'test_compiler_compiler_driver')),
     ])
 
 class Job(object):
-    def __init__(self, command, stdout_path=None, stderr_path=None, stdin_path=None, deps=None, timeout=DEFAULT_TIMEOUT_S):
+    def __init__(self, command, stdout_path=None, stderr_path=None, stdin_path=None, deps=None, timeout=DEFAULT_TIMEOUT_S, expected_paths=None):
         self.command = command
         self.stdin_path = stdin_path
         self.stderr_path = stderr_path
@@ -283,6 +309,9 @@ class Job(object):
         self.timed_out = False
         self.infra_error = None
         self.timeout = timeout
+        self.expected_paths = expected_paths if expected_paths else []
+        if self.stdin_path:
+            self.expected_paths.append(self.stdin_path)
 
     def begin(self):
         self.task = asyncio.create_task(self.run())
@@ -292,6 +321,10 @@ class Job(object):
             done, pending = await asyncio.wait([dep.task for dep in self.deps])
         for dep in self.deps:
             if dep.return_code != 0:
+                return
+        for path in self.expected_paths:
+            if not os.path.isfile(path):
+                self.infra_error = FileNotFoundError(path)
                 return
         fin = open(self.stdin_path) if self.stdin_path else None
         fout = open(self.stdout_path, 'wb') if self.stdout_path else None
@@ -329,7 +362,7 @@ def player_job(player, bytecode, output_directory, timeout, deps=None):
 def compile_player_job(compiler, player, example, bytecode_path, output_directory, timeout, deps=None):
     stderr_path = os.path.join(output_directory, name(compiler, player, example, suffix='_stderr.txt'))
     stdout_path = os.path.join(output_directory, name(compiler, player, example, suffix='_stdout.txt'))
-    return Job([player.path, bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=example.input_path, timeout=timeout, deps=deps)
+    return Job([player.path, bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=example.input_path, timeout=timeout, deps=deps, expected_paths=[bytecode_path])
 
 def compile_job(compiler, ink, output_directory, timeout):
     stderr_path = os.path.join(output_directory, name(compiler, ink, suffix='_stderr.txt'))
@@ -372,6 +405,7 @@ def write_json(fout, runtimes, compilers, examples, results):
         TimeoutStatus,
         ErrorRuntimeCrashedStatus,
         ErrorCompilerCrashedStatus,
+        ErrorCompilerDidNotOutputStatus,
         InfraErrorStatus,
     ]}
     runtimes = [runtime.describe() for runtime in runtimes]

@@ -192,6 +192,7 @@
           const k = vnode.attrs.k;
           const v = vnode.attrs.v;
           const isPath = k.endsWith("Path");
+          const isList = v instanceof Array;
           const isNullValue = v === null;
 
           if (isNullValue) {
@@ -205,6 +206,8 @@
               class: 'link',
               }, v),
             ));
+          } else if (isList) {
+            return m("tr", m("td", k), m("td.code", v.join(" ")));
           } else {
             return m("tr", m("td", k), m("td", v));
           }
@@ -224,6 +227,15 @@
         },
       };
 
+      const ResultSummaryItem = {
+        view(vnode) {
+          const resultIndex = vnode.attrs.resultIndex;
+          const result = Data.results[resultIndex];
+          const item = vnode.attrs.item;
+          return m("p", item.humanName, ": " , m("span.code", result[item.name]));
+        }
+      };
+
       const ResultSummary = {
         view(vnode) {
           const resultIndex = vnode.attrs.resultIndex;
@@ -232,7 +244,6 @@
           const example = Data.exampleByName[result.example];
           const status = Data.statuses[result.status];
           return [
-            m("p", "Exit code: ", m("span.code", result.exitcode)),
             (result.status === "CRASHED") ? [
               m(".fl.w-50.pr2",
                 m("p", "stderr"),
@@ -245,20 +256,22 @@
             ] : (result.status === "INFRA_ERROR") ? [
                 m("p", "Exception"),
                 m("pre", result.infraError),
-            ] : [
-              m(".fl.w-33.pr2",
-                m("p", "Expected output"),
-                m(FileView, {path: example.expectedPath}),
-              ),
-              m(".fl.w-33.pr2",
-                m("p", "Actual output"),
-                m(FileView, {path: result.outPath}),
-              ),
-              m(".fl.w-33",
-                m("p", "Diff"),
-                m(FileView, {path: result.diffPath}),
-              ),
-            ],
+            ] : status.summary.map(item => m(ResultSummaryItem, {resultIndex, item})),
+
+            //[
+            //  m(".fl.w-33.pr2",
+            //    m("p", "Expected output"),
+            //    m(FileView, {path: example.expectedPath}),
+            //  ),
+            //  m(".fl.w-33.pr2",
+            //    m("p", "Actual output"),
+            //    m(FileView, {path: result.outPath}),
+            //  ),
+            //  m(".fl.w-33",
+            //    m("p", "Diff"),
+            //    m(FileView, {path: result.diffPath}),
+            //  ),
+            //],
             ];
         },
       };

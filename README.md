@@ -21,3 +21,10 @@ cd out
 python3 -m http.server 8080
 # Now navigate to http://localhost:8080
 ```
+
+## Test cases
+`ink-proof` has two kinds of test cases: ".ink" test cases and ".json" test cases.
+
+Ink test cases live under the [ink](ink) directory. The consist of a `story.ink` file (for example [ink/I002/story.ink](ink/I002/story.ink), an `input.txt` file (e.g. [ink/I002/input.txt](ink/I002/input.txt)), and an expected output file ([ink/I002/transcript.txt](ink/I002/transcript.txt)).
+
+Json test cases live under the [bytecode](bytecode) directory. 

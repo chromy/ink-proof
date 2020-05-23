@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+import sys
+import time
+
+output_path = sys.argv[2]
+input_path = sys.argv[3]
+
+if "I001" in input_path:
+    print("I crash on example I001!", file=sys.stderr)
+    exit(1)
+if "I002" in input_path:
+    print("I don't produce output on example I001!", file=sys.stderr)
+    exit(0)
+
