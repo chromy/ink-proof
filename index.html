@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <title>Ink Proof</title>
     <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"/>
   </head>
   <body>
@@ -169,7 +170,7 @@
           const program = Data.programByName[vnode.attrs.programName];
           return [
             m("h1", "Help"),
-            m("p",
+            m("p.mw6",
               "This is ink-proof, a tool for acceptance testing of Ink compilers and runtimes.",
               " ",
               "Try clicking on an item in the grid on the left for more detail on it.",
@@ -191,28 +192,42 @@
         view(vnode) {
           const k = vnode.attrs.k;
           const v = vnode.attrs.v;
-          const isPath = k.endsWith("Path");
-          const isList = v instanceof Array;
-          const isNullValue = v === null;
+          const kind = resultItemKind(k, v);
 
-          if (isNullValue) {
+          if (kind === "null") {
             return m("tr",
               m("td", k),
               m("td", m(".code.gray", "NULL")),
             );
-          } else if (isPath) {
+          } else if (kind === "file") {
             return m("tr", m("td", k), m("td", m(m.route.Link, {
               href: `/file/${v}`,
               class: 'link',
               }, v),
             ));
-          } else if (isList) {
+          } else if (kind === "list") {
             return m("tr", m("td", k), m("td.code", v.join(" ")));
           } else {
             return m("tr", m("td", k), m("td", v));
           }
         },
       };
+
+      function resultItemKind(key, value) {
+        const isPath = key.endsWith("Path");
+        const isList = value instanceof Array;
+        const isNullValue = value === null;
+        if (isNullValue) {
+          return 'null';
+        }
+        if (isPath) {
+          return 'file';
+        }
+        if (isList) {
+          return 'list';
+        }
+        return 'unknown';
+      }
 
       const ResultEverything = {
         view(vnode) {
@@ -232,14 +247,29 @@
           const resultIndex = vnode.attrs.resultIndex;
           const result = Data.results[resultIndex];
           const item = vnode.attrs.item;
-          return m("p", item.humanName, ": " , m("span.code", result[item.name]));
+          const k = item.name;
+          const v = result[k];
+          const kind = resultItemKind(k, v);
+          if (kind === "null") {
+            return m("p", item.humanName, ": " , m(".code.gray", "NULL"));
+          }
+
+          if (kind === "file") {
+            return m("p", item.humanName, ": " , m("span.code", m(FileView, {path: v})));
+          }
+
+          if (kind === "list") {
+            return m("p", item.humanName, ": " , m("span.code", v.join(" ")));
+          }
+
+          return m("p", item.humanName, ": " , m("span.code", v));
         }
       };
 
       const ResultSummary = {
         view(vnode) {
           const resultIndex = vnode.attrs.resultIndex;
-          const result = Data.results[resultIndex];
+          const result = Data.results[resultIndex]
           const program = Data.programByName[result.program];
           const example = Data.exampleByName[result.example];
           const status = Data.statuses[result.status];
