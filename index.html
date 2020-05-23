@@ -119,7 +119,7 @@
       const FileView = {
         view(vnode) {
           const text = Files.get(vnode.attrs.path);
-          return text === "" ? m('p', m("i.gray", "Empty file")) : m("pre", {
+          return text === "" ? m('p', m("i.gray", "Empty file")) : m("pre.f7", {
             style: "white-space: pre-wrap; tab-size: 4;",
           }, text);
         },
@@ -329,7 +329,7 @@
                 showEverything: true,
               }),
               class: 'link',
-            }, showEverything ? "Show summary" : "Show everything"),
+            }, showEverything ? "Show what the test harness believes is relevant" : "Show all information from the test"),
             showEverything ? m(ResultEverything, {resultIndex}) : m(ResultSummary, {resultIndex}),
           ];
         }

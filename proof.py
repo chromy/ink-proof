@@ -334,9 +334,7 @@ def find_all_player_drivers(root):
     suffix = "_runtime_driver"
     names = [name for name in files if name.endswith(suffix)]
     drivers = [PlayerDriver(name[:-len(suffix)], os.path.join(root, "drivers", name)) for name in names]
-    return sorted(drivers +
-        [PlayerDriver('inkjs', os.path.join(root, 'player_drivers', 'inkjs', 'player')),
-        PlayerDriver('inklecore', os.path.join(root, 'player_drivers', 'inklecate', 'player'))])
+    return sorted(drivers)
 
 def find_all_complier_drivers(root):
     folder = os.path.join(root, 'drivers')

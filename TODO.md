@@ -1,12 +1,11 @@
 # Todo
-- dynamically find drivers
 - prepare
-- files side by side
 - fix ci tools
-- hide output dir option
 - fix lhs sizing
 - style pass?
+- hide metadata
 
+# Punt
 - more help
 - more readme?
 - choose output dir
@@ -20,8 +19,6 @@
 - highlight help / metadata
 - Reproduction instructions
 - serve mode
-
-# Punt
 - only show errors filter
 - xxd mode
 - Non-determinism
@@ -34,8 +31,10 @@
 - show newline, tab
 - show runtime next to exitcode
 - extend line to bottom of page
+- hide output dir option
 
 # Done
+- dynamically find drivers
 - Timeout
 - infra error
 - Extract C# Player
