@@ -20,9 +20,9 @@ class SummaryItem(object):
 
     def describe(self):
         return {
-                "name": self.name,
-                "humanName": self.human_name,
-                }
+            "name": self.name,
+            "humanName": self.human_name,
+        }
 
 class Status(object):
     def __init__(self, name, symbol, description, summary=None):
@@ -363,6 +363,10 @@ def player_job(player, bytecode, output_directory, timeout, deps=None):
     stdout_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stdout.txt'))
     return Job([player.path, bytecode.bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=bytecode.input_path, timeout=timeout, deps=deps)
 
+def player2_job(player, bytecode, bytecode_path, input_path, output_directory, timeout, deps=None):
+    stderr_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stderr.txt'))
+    stdout_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stdout.txt'))
+    return Job([player.path, bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=input_path, timeout=timeout, deps=deps)
 
 def compile_player_job(compiler, player, example, bytecode_path, output_directory, timeout, deps=None):
     stderr_path = os.path.join(output_directory, make_name(compiler, player, example, suffix='_stderr.txt'))
@@ -402,7 +406,7 @@ def ensure_dir(directory):
         os.makedirs(directory)
     return directory
 
-def write_json(fout, runtimes, compilers, examples, results):
+def write_json(fout, drivers, examples, results):
     metadata = {}
     statuses = {status.name: status.describe() for status in [
         ErrorStatus,
@@ -413,15 +417,14 @@ def write_json(fout, runtimes, compilers, examples, results):
         ErrorCompilerDidNotOutputStatus,
         InfraErrorStatus,
     ]}
-    runtimes = [runtime.describe() for runtime in runtimes]
-    compilers = [compiler.describe() for compiler in compilers]
+    drivers = [driver.describe() for driver in drivers]
     examples = [example.describe() for example in examples]
     results = [result.describe() for result in results]
 
     json.dump({
         "metadata": metadata,
         "statuses": statuses,
-        "programs": compilers + runtimes,
+        "programs": drivers,
         "examples": examples,
         "results": results,
     }, fout)
@@ -450,6 +453,7 @@ def main(root):
     available_compilers = [d.name for d in compiler_drivers]
     available_drivers = available_runtimes + available_compilers
     default_drivers = [name for name in available_drivers if "test" not in name]
+    drivers_by_name = {d.name: d for d in compiler_drivers + player_drivers}
 
     parser = argparse.ArgumentParser(description='Testing for Ink compilers and runtimes')
     parser.add_argument('--out', default=DEFAULT_OUT_PATH, help=f'output directory (default: {DEFAULT_OUT_PATH})')
@@ -460,6 +464,7 @@ def main(root):
     parser.add_argument('drivers', nargs='*', default=default_drivers, help=f'drivers to test (default: {" ".join(default_drivers)}) (available: {" ".join(available_runtimes+available_compilers)})')
     args = parser.parse_args()
 
+    selected_drivers = []
     if args.reference_runtime not in available_runtimes:
         runtimes = ", ".join(available_runtimes)
         parser.error(f"Runtime '{args.reference_runtime}' unknown. Available runtimes: {runtimes}")
@@ -470,6 +475,9 @@ def main(root):
         if name not in available_runtimes and name not in available_compilers:
             drivers = ", ".join(available_drivers)
             parser.error(f"Driver '{name}' unknown. Available drivers: {drivers}")
+        selected_drivers.append(drivers_by_name[name])
+    if len(args.drivers) != len(set(args.drivers)):
+        parser.error(f"Drivers \"{' '.join(args.drivers)}\" contains duplicates")
 
     reference_runtime, = [d for d in player_drivers if d.name == args.reference_runtime]
     reference_compiler, = [d for d in compiler_drivers if d.name == args.reference_compiler]
@@ -522,6 +530,17 @@ def main(root):
                 if compiler == reference_compiler:
                     refrence_compile_job[example] = job_a
 
+            for i, runtime in enumerate(selected_runtimes):
+                job_z = refrence_compile_job[example]
+                bytecode_path = job_z.out_path
+                input_path = example.input_path
+                job_a = player2_job(runtime, example, bytecode_path, input_path, output_directory, args.timeout, deps=[job_z])
+                diff_path = os.path.join(output_directory, make_name(runtime, example, suffix='_diff.txt'))
+                job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
+                jobs.append(job_a)
+                jobs.append(job_b)
+                results.append(PlayerResult(runtime, example, job_a, job_b))
+
         for j, example in enumerate(bytecode_examples):
             for i, player in enumerate(selected_runtimes):
                 job_a = player_job(player, example, output_directory, args.timeout)
@@ -536,7 +555,7 @@ def main(root):
             result.settle()
         fout = context_stack.enter_context(open(os.path.join(output_directory, 'summary.json'), 'w'))
 
-        write_json(fout, selected_runtimes, selected_compilers, bytecode_examples+ink_examples, results)
+        write_json(fout, selected_drivers, bytecode_examples+ink_examples, results)
         shutil.copyfile(os.path.join(root, 'index.html'), os.path.join(output_directory, 'index.html'))
 
         output_bytecode_path = os.path.join(output_directory, 'bytecode')
