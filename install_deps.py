@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (C) 2017 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,10 @@ import zipfile
 from collections import namedtuple
 from platform import system
 
-from compat import urlretrieve
+try:
+  from urllib.request import urlretrieve
+except ImportError:
+  from urllib import urlretrieve
 
 # The format for the deps below is the following:
 # (target_folder, source_url, sha1, target_platform)
@@ -42,13 +45,28 @@ from compat import urlretrieve
 
 DEPS = [
     # Inklecate v0.9.0
-    ('deps/inklecate_v0.9.0',
-     'https://github.com/inkle/ink/releases/download/0.9.0/inklecate_mac.zip'
-     '4c0d45772aea4146699772165e8112fa76ceb295', 'darwin'),
+    ('deps/inklecate_v0.9.0.zip',
+     'https://github.com/inkle/ink/releases/download/0.9.0/inklecate_mac.zip',
+     '4f6363fdb7c1f4172b24c9517de9a4faeb73d746',
+     'darwin'),
+    ('deps/inklecate_v0.9.0.zip',
+     'https://github.com/inkle/ink/releases/download/0.9.0/inklecate_windows_and_linux.zip',
+     '3e9c0f4fb6e6ee2feed740ad2783f687e870917d',
+     'linux'),
+
+    # Inklecate v0.8.3
+    ('deps/inklecate_v0.8.3.zip',
+     'https://github.com/inkle/ink/releases/download/0.8.3/inklecate_mac.zip',
+     '3aa99f070665a3fb71a341755586322df41865c0',
+     'darwin'),
+    ('deps/inklecate_v0.8.3.zip',
+     'https://github.com/inkle/ink/releases/download/0.8.3/inklecate_windows_and_linux.zip',
+     'f97a77b6da4c2956603b877d27456d6172300656',
+     'linux'),
+
 ]
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# NODE_MODULES_STATUS_FILE = os.path.join(UI_DIR, 'node_modules', '.last_install')
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def ReadFile(path):
   if not os.path.exists(path):
@@ -103,12 +121,12 @@ def CheckoutGitRepo(path, git_url, revision, check_only):
   return True
 
 
-#def InstallNodeModules():
-#  logging.info("Running npm install in {0}".format(UI_DIR))
-#  subprocess.check_call([os.path.join(UI_DIR, 'npm'), 'install', '--no-save'],
-#                        cwd=UI_DIR)
-#  with open(NODE_MODULES_STATUS_FILE, 'w') as f:
-#    f.write(HashLocalFile(os.path.join(UI_DIR, 'package-lock.json')))
+def InstallNodeModules():
+  logging.info("Running npm install in {0}".format(UI_DIR))
+  subprocess.check_call([os.path.join(UI_DIR, 'npm'), 'install', '--no-save'],
+                        cwd=UI_DIR)
+  with open(NODE_MODULES_STATUS_FILE, 'w') as f:
+    f.write(HashLocalFile(os.path.join(UI_DIR, 'package-lock.json')))
 
 
 def CheckNodeModules():
@@ -126,7 +144,7 @@ def CheckNodeModules():
 
 
 def CheckHashes():
-  for deps in [BUILD_DEPS_HOST, BUILD_DEPS_ANDROID, TEST_DEPS_ANDROID, UI_DEPS]:
+  for deps in DEPS:
     for rel_path, url, expected_sha1, platform in deps:
       if url.endswith('.git'):
         continue
@@ -143,19 +161,13 @@ def CheckHashes():
 
 def Main():
   parser = argparse.ArgumentParser()
-  parser.add_argument('--android', action='store_true')
-  parser.add_argument('--ui', action='store_true')
   parser.add_argument('--check-only')
   parser.add_argument('--verify', help='Check all URLs', action='store_true')
   args = parser.parse_args()
   if args.verify:
     CheckHashes()
     return 0
-  deps = BUILD_DEPS_HOST
-  if args.android:
-    deps += BUILD_DEPS_ANDROID + TEST_DEPS_ANDROID
-  if args.ui:
-    deps += UI_DEPS
+  deps = DEPS
   deps_updated = False
   for rel_path, url, expected_sha1, platform in deps:
     if (platform != 'all' and platform != system().lower()):
@@ -220,13 +232,6 @@ def Main():
       with open(zip_dir_stamp, 'w') as stamp_file:
         stamp_file.write(expected_sha1)
       os.remove(local_path)
-
-#  if args.ui:
-#    # Needs to happen after nodejs is installed above.
-#    if args.check_only:
-#      deps_updated = not CheckNodeModules()
-#    else:
-#      InstallNodeModules()
 
   if args.check_only:
     if not deps_updated:

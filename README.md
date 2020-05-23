@@ -16,6 +16,7 @@ The latest public run of `ink-proof` is available at https://chromy.github.io/in
 ```bash
 git clone https://github.com/chromy/ink-proof.git
 cd ink-proof
+python3 install_deps.py
 python3 proof.py
 cd out
 python3 -m http.server 8080

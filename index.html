@@ -283,22 +283,6 @@
           const example = Data.exampleByName[result.example];
           const status = Data.statuses[result.status];
           return status.summary.map(item => m(ResultSummaryItem, {resultIndex, item}));
-
-            //[
-            //  m(".fl.w-33.pr2",
-            //    m("p", "Expected output"),
-            //    m(FileView, {path: example.expectedPath}),
-            //  ),
-            //  m(".fl.w-33.pr2",
-            //    m("p", "Actual output"),
-            //    m(FileView, {path: result.outPath}),
-            //  ),
-            //  m(".fl.w-33",
-            //    m("p", "Diff"),
-            //    m(FileView, {path: result.diffPath}),
-            //  ),
-            //],
-
         },
       };
 
@@ -375,7 +359,8 @@
                 m(m.route.Link, {
                   href: `/program/${p.name}`,
                   class: 'link db',
-                  }, p.name)),
+                  style: "max-width: 5rem;",
+                  }, p.name.split("_").join("\n"))),
               )),
               Data.examples.map((e, i) => m("tr",
                 m("td", {

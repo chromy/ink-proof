@@ -10,8 +10,8 @@ import shutil
 import argparse
 
 DEFAULT_OUT_PATH = os.path.abspath("out")
-DEFAULT_TIMEOUT_S = 2
-DEFAULT_COMPILER = "inklecate"
+DEFAULT_TIMEOUT_S = 10
+DEFAULT_COMPILER = "inklecate_v0.9.0"
 DEFAULT_RUNTIME = "inklecore"
 
 class SummaryItem(object):
