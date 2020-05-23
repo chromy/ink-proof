@@ -273,20 +273,7 @@
           const program = Data.programByName[result.program];
           const example = Data.exampleByName[result.example];
           const status = Data.statuses[result.status];
-          return [
-            (result.status === "CRASHED") ? [
-              m(".fl.w-50.pr2",
-                m("p", "stderr"),
-                m(FileView, {path: result.errPath}),
-              ),
-              m(".fl.w-50",
-                m("p", "stdout"),
-                m(FileView, {path: result.outPath}),
-              ),
-            ] : (result.status === "INFRA_ERROR") ? [
-                m("p", "Exception"),
-                m("pre", result.infraError),
-            ] : status.summary.map(item => m(ResultSummaryItem, {resultIndex, item})),
+          return status.summary.map(item => m(ResultSummaryItem, {resultIndex, item}));
 
             //[
             //  m(".fl.w-33.pr2",
@@ -302,7 +289,7 @@
             //    m(FileView, {path: result.diffPath}),
             //  ),
             //],
-            ];
+
         },
       };
 
@@ -487,7 +474,7 @@
             },
           },
 
-          "/file/:path": {
+          "/file/:path...": {
             render(vnode) {
               return m(OverviewWithFocus, m(FocusFile, {
                 path: vnode.attrs.path,

@@ -41,26 +41,52 @@ class Status(object):
 SuccessStatus = Status(
     "SUCCESS",
     "💚",
-    ""
+    "",
+    [
+        SummaryItem("outPath", "Output"),
+    ]
 )
 
-ErrorStatus = Status("ERROR", "❌", "Actual output does not match expected")
-ErrorCompilerDidNotOutputStatus = Status("ERROR", "❌", "The compiler did not produce output")
-ErrorRuntimeCrashedStatus = Status("CRASHED", "🔥", "The runtime crashed on this input")
-ErrorCompilerCrashedStatus = Status("CRASHED", "🔥", "The compiler crashed on this input")
-TimeoutStatus = Status("TIMEOUT", "⌛", "The runtime timed out",
-    [SummaryItem("exitcode", "Exit code"), SummaryItem("outPath", "stdout"), SummaryItem("errPath", "stderr")]
+FailStatus = Status("FAIL", "❌", "Actual output does not match expected", [
+    SummaryItem("outPath", "Actual output"),
+    SummaryItem("expectedPath", "Expected output"),
+    SummaryItem("diffPath", "Diff"),
+])
 
-        )
-InfraErrorStatus = Status("INFRA_ERROR", "🏗️", "Infra error")
+ErrorCompilerDidNotOutputStatus = Status("COMPILER_NO_OUTPUT", "❌", "The compiler did not produce output", [
+    SummaryItem("compileExitcode", "Exit code"),
+    SummaryItem("compileOutPath", "stdout"),
+    SummaryItem("compileErrPath", "stderr"),
+])
+ErrorRuntimeCrashedStatus = Status("RUNTIME_CRASHED", "🔥", "The runtime crashed on this input", [
+    SummaryItem("exitcode", "Exit code"),
+    SummaryItem("outPath", "stdout"),
+    SummaryItem("errPath", "stderr"),
+])
+ErrorCompilerCrashedStatus = Status("COMPILER_CRASHED", "🔥", "The compiler crashed on this input", [
+    SummaryItem("compileExitcode", "Exit code"),
+    SummaryItem("compileOutPath", "stdout"),
+    SummaryItem("compileErrPath", "stderr"),
+])
+
+TimeoutStatus = Status("RUNTIME_TIMEOUT", "⌛", "The runtime timed out", [
+    SummaryItem("exitcode", "Exit code"),
+    SummaryItem("outPath", "stdout"),
+    SummaryItem("errPath", "stderr")
+])
+
+InfraErrorStatus = Status("INFRA_ERROR", "🏗️", "Infra error", [
+    SummaryItem("infraError", "Exception"),
+])
 
 class PlayerResult(object):
-    def __init__(self, program, example, player_job, diff_job):
+    def __init__(self, program, example, player_job, diff_job, compile_job=None):
         self.program = program
         self.example = example
         self.player_job = player_job
         self.diff_job = diff_job
         self.infra_error = None
+        self.compile_job = compile_job
 
     def settle(self):
         if self.player_job.timed_out:
@@ -75,7 +101,7 @@ class PlayerResult(object):
             if os.path.getsize(self.player_job.stderr_path) > 5:
                 self.status = ErrorRuntimeCrashedStatus
             else:
-                self.status = ErrorStatus
+                self.status = FailStatus
         else:
             self.status = SuccessStatus
 
@@ -83,6 +109,9 @@ class PlayerResult(object):
         diff_path = os.path.relpath(self.diff_job.stdout_path, 'out')
         out_path = os.path.relpath(self.player_job.stdout_path, 'out')
         err_path = os.path.relpath(self.player_job.stderr_path, 'out')
+        # TODO(chromy): Clean up
+        root = os.path.dirname(os.path.abspath(__file__))
+        transcript_path = os.path.relpath(self.example.transcript_path, root)
         description = {
             "status": self.status.name,
             "program": self.program.name,
@@ -90,9 +119,20 @@ class PlayerResult(object):
             "diffPath": diff_path,
             "outPath": out_path,
             "errPath": err_path,
+            "expectedPath": transcript_path,
             "exitcode": self.player_job.return_code,
             "playCmdline": self.player_job.command,
         }
+        if self.compile_job:
+            compile_stdout_path = os.path.relpath(self.compile_job.stdout_path, 'out')
+            compile_stderr_path = os.path.relpath(self.compile_job.stderr_path, 'out')
+            compile_bytecode_path = os.path.relpath(self.compile_job.out_path, 'out')
+            description["compileCmdline"] = self.compile_job.command
+            description["compileOutPath"] = compile_stdout_path
+            description["compileErrPath"] = compile_stderr_path
+            description["compileBytecodePath"] = compile_bytecode_path
+            description["compileExitcode"] = self.compile_job.return_code
+
         if self.infra_error:
             description["infraError"] = str(self.infra_error)
         return description
@@ -129,7 +169,7 @@ class CompilerResult(object):
             if os.path.getsize(self.player_job.stderr_path) > 5:
                 self.status = ErrorRuntimeCrashedStatus
             else:
-                self.status = ErrorStatus
+                self.status = FailStatus
         else:
             self.status = SuccessStatus
 
@@ -142,6 +182,10 @@ class CompilerResult(object):
         compile_stderr_path = os.path.relpath(self.compile_job.stderr_path, 'out')
         compile_bytecode_path = os.path.relpath(self.compile_job.out_path, 'out')
 
+        # TODO(chromy): Clean up
+        root = os.path.dirname(os.path.abspath(__file__))
+        transcript_path = os.path.relpath(self.example.transcript_path, root)
+
         description = {
             "status": self.status.name,
             "program": self.compiler.name,
@@ -151,11 +195,12 @@ class CompilerResult(object):
             "diffPath": diff_path,
             "outPath": out_path,
             "errPath": err_path,
+            "expectedPath": transcript_path,
             "compileCmdline": self.compile_job.command,
             "compileOutPath": compile_stdout_path,
             "compileErrPath": compile_stderr_path,
             "compileBytecodePath": compile_bytecode_path,
-            "compilerExitcode": self.compile_job.return_code,
+            "compileExitcode": self.compile_job.return_code,
             "diffExitcode": self.diff_job.return_code,
             "exitcode": self.player_job.return_code,
         }
@@ -409,12 +454,12 @@ def ensure_dir(directory):
 def write_json(fout, drivers, examples, results):
     metadata = {}
     statuses = {status.name: status.describe() for status in [
-        ErrorStatus,
         SuccessStatus,
-        TimeoutStatus,
+        FailStatus,
+        ErrorCompilerDidNotOutputStatus,
         ErrorRuntimeCrashedStatus,
         ErrorCompilerCrashedStatus,
-        ErrorCompilerDidNotOutputStatus,
+        TimeoutStatus,
         InfraErrorStatus,
     ]}
     drivers = [driver.describe() for driver in drivers]
@@ -428,20 +473,6 @@ def write_json(fout, drivers, examples, results):
         "examples": examples,
         "results": results,
     }, fout)
-
-    # For each example
-    # For each runner
-    # One of the following end states:
-    # - Infra error
-    # - Timeout
-    # - Player crashed
-    # - Player output non-determnistic
-    # - Player output diff from transcript
-    # - Correct
-    # statues
-    # examples {name, description, inputs, expected output}
-    # programs {name, etc}
-    # result   {example index, program}
 
 def main(root):
     bytecode_examples = find_all_bytecode_examples(root)
@@ -539,7 +570,7 @@ def main(root):
                 job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
                 jobs.append(job_a)
                 jobs.append(job_b)
-                results.append(PlayerResult(runtime, example, job_a, job_b))
+                results.append(PlayerResult(runtime, example, job_a, job_b, compile_job=job_z))
 
         for j, example in enumerate(bytecode_examples):
             for i, player in enumerate(selected_runtimes):
