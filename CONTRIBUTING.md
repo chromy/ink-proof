@@ -4,6 +4,14 @@ Thanks for considering contributing to this project!
 It would be great to have your help.
 The guides below may be helpful to get you started.
 
+## How can I contribute?
+- Add more Ink test cases!
+- Add more JSON test cases!
+- Add drivers for Ink runtimes!
+- Add drivers for Ink compilers!
+- Fix any outstanding [TODO](TODO.md)!
+- Some yet unimagined and unlisted improvement!
+
 ## Adding a .json test case
 - Copy [bytecode/B001](bytecode/B001) to `bytecode/B0NN` where `N` is an unused testcase number.
 - Edit `bytecode/B0NN/bytecode.json` with your new test case.
