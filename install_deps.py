@@ -64,6 +64,17 @@ DEPS = [
      'f97a77b6da4c2956603b877d27456d6172300656',
      'linux'),
 
+    # Inkjs 1.10.4
+    ('deps/inkjs_v1.10.4.zip',
+     'https://github.com/y-lohse/inkjs/archive/v1.10.4.zip',
+     '4ea267b8b56a6eb34d248509d2c305b31f30c227',
+     'all'),
+
+    # Inkjs 1.9.0
+    ('deps/inkjs_v1.9.0.zip',
+     'https://github.com/y-lohse/inkjs/archive/v1.9.0.zip',
+     'bd2d492ae7a88c2897583dc1b9c517d648da5917',
+     'all'),
 ]
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

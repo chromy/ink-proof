@@ -1,0 +1,2 @@
+#!/bin/bash
+deps/inklecore_v0.9.0_plus/inklecate $1 | awk '{if(NR==1)sub(/^\xef\xbb\xbf/,"");print}'

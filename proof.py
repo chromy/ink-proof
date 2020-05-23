@@ -12,7 +12,7 @@ import argparse
 DEFAULT_OUT_PATH = os.path.abspath("out")
 DEFAULT_TIMEOUT_S = 10
 DEFAULT_COMPILER = "inklecate_v0.9.0"
-DEFAULT_RUNTIME = "inklecore"
+DEFAULT_RUNTIME = "inklecore_v0.9.0_plus"
 
 class SummaryItem(object):
     def __init__(self, name, human_name):
@@ -475,13 +475,6 @@ def write_json(fout, drivers, examples, results):
         "results": results,
     }, fout)
 
-
-
-
-def fetch_drivers(root):
-    print('fetch drivers')
-
-
 def main(root):
     bytecode_examples = find_all_bytecode_examples(root)
     ink_examples = find_all_ink_examples(root)
@@ -496,16 +489,12 @@ def main(root):
 
     parser = argparse.ArgumentParser(description='Testing for Ink compilers and runtimes')
     parser.add_argument('--out', default=DEFAULT_OUT_PATH, help=f'output directory (default: {DEFAULT_OUT_PATH})')
-    parser.add_argument('--fetch-drivers', action='store_true', help='download compilers and runtimes')
     parser.add_argument('--list-drivers', action='store_true', help='list found compilers and runtimes')
     parser.add_argument('--timeout', default=DEFAULT_TIMEOUT_S, type=int, help=f'timeout for subprocesses (default: {DEFAULT_TIMEOUT_S}s)')
     parser.add_argument('--reference-runtime', default=DEFAULT_RUNTIME, help=f'set the reference runtime (default: {DEFAULT_RUNTIME})')
     parser.add_argument('--reference-compiler', default=DEFAULT_COMPILER, help=f'set the reference compiler (default: {DEFAULT_COMPILER})')
     parser.add_argument('drivers', nargs='*', default=default_drivers, help=f'drivers to test (default: {" ".join(default_drivers)}) (available: {" ".join(available_runtimes+available_compilers)})')
     args = parser.parse_args()
-
-    if args.fetch_drivers:
-        fetch_drivers(root)
 
     selected_drivers = []
     if args.reference_runtime not in available_runtimes:

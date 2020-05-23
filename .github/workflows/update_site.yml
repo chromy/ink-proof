@@ -17,8 +17,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           python3 install_deps.py
-          python3 proof.py
-
+          python3 proof.py inklecate_v0.8.3 inklecate_v0.9.0 inkjs_v1.10.4 inkjs_v1.9.0 inklecore_v0.9.0_plus
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@releases/v3
         with:
