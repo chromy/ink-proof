@@ -1,9 +1,7 @@
 # Todo
-- prepare
-- fix ci tools
-- fix lhs sizing
-- style pass?
-- hide metadata
+- Fetch drivertools
+- Make work with github actions
+- Clean out logging
 
 # Punt
 - more help
@@ -34,6 +32,8 @@
 - hide output dir option
 
 # Done
+- style pass?
+- fix lhs sizing
 - dynamically find drivers
 - Timeout
 - infra error

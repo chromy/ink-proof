@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import time
 import os
 import asyncio
 import tempfile
@@ -450,7 +451,9 @@ def ensure_dir(directory):
     return directory
 
 def write_json(fout, drivers, examples, results):
-    metadata = {}
+    metadata = {
+        "timestamp": time.time()
+    }
     statuses = {status.name: status.describe() for status in [
         SuccessStatus,
         FailStatus,
@@ -472,6 +475,13 @@ def write_json(fout, drivers, examples, results):
         "results": results,
     }, fout)
 
+
+
+
+def fetch_drivers(root):
+    print('fetch drivers')
+
+
 def main(root):
     bytecode_examples = find_all_bytecode_examples(root)
     ink_examples = find_all_ink_examples(root)
@@ -486,12 +496,16 @@ def main(root):
 
     parser = argparse.ArgumentParser(description='Testing for Ink compilers and runtimes')
     parser.add_argument('--out', default=DEFAULT_OUT_PATH, help=f'output directory (default: {DEFAULT_OUT_PATH})')
-    parser.add_argument('--list-drivers', action='store_true', help='list found drivers')
+    parser.add_argument('--fetch-drivers', action='store_true', help='download compilers and runtimes')
+    parser.add_argument('--list-drivers', action='store_true', help='list found compilers and runtimes')
     parser.add_argument('--timeout', default=DEFAULT_TIMEOUT_S, type=int, help=f'timeout for subprocesses (default: {DEFAULT_TIMEOUT_S}s)')
     parser.add_argument('--reference-runtime', default=DEFAULT_RUNTIME, help=f'set the reference runtime (default: {DEFAULT_RUNTIME})')
     parser.add_argument('--reference-compiler', default=DEFAULT_COMPILER, help=f'set the reference compiler (default: {DEFAULT_COMPILER})')
     parser.add_argument('drivers', nargs='*', default=default_drivers, help=f'drivers to test (default: {" ".join(default_drivers)}) (available: {" ".join(available_runtimes+available_compilers)})')
     args = parser.parse_args()
+
+    if args.fetch_drivers:
+        fetch_drivers(root)
 
     selected_drivers = []
     if args.reference_runtime not in available_runtimes:
