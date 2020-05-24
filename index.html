@@ -97,7 +97,11 @@
             Files.pending[path] = false;
             Files.cached[path] = result;
           });
-        }
+        },
+
+        isLoading(path) {
+          return !!this.pending[path];
+        },
       };
 
       const FocusExample = {
@@ -131,7 +135,8 @@
       const FileView = {
         view(vnode) {
           const text = Files.get(vnode.attrs.path);
-          return text === "" ? m('p', m("i.gray", "Empty file")) : m("pre.f7", {
+          const isLoading = Files.isLoading(vnode.attrs.path);
+          return text === "" ? m('p', m("i.gray", isLoading ? "Loading" : "Empty file")) : m("pre.f7", {
             style: "white-space: pre-wrap; tab-size: 4;",
           }, text);
         },
@@ -162,9 +167,17 @@
 
       const FocusProgram = {
         view(vnode) {
-          const program = Data.programByName[vnode.attrs.programName];
+          const programName = vnode.attrs.programName;
+          const program = Data.programByName[programName];
           return [
             m('h1', program.kind, " ", program.name),
+            m("p", Data.results.filter(r => r.program === programName).map(r => {
+              const status = Data.statuses[r.status];
+              return m(m.route.Link, {
+                    href: `/result/${Data.results.indexOf(r)}`,
+                    class: 'link',
+                  }, status.symbol);
+            })),
           ];
         }
       };
@@ -182,12 +195,15 @@
           const program = Data.programByName[vnode.attrs.programName];
           return [
             m("p.mw6",
-              "This is ink-proof, a tool for acceptance testing of Ink compilers and runtimes.",
-              " ",
-              "Try clicking on an item in the grid on the left for more detail on it.",
-              " ",
-              "For more information see the ", m("a[href=https://github.com/chromy/ink-proof]", "ink-proof github page"), "."
-              ),
+              "This is ink-proof, a tool for conformance testing of Ink compilers and runtimes.", " ",
+              "On the left you can see the output of a round of ink-proof testing.", " ",
+              "Each row is a test case and each column is a compiler or runtime.", " ",
+              "Try clicking on an item in the table for more detail on it.", " ",
+            ),
+            m("p.mw6",
+              "For more information see the ",
+              m("a[href=https://github.com/chromy/ink-proof]", "ink-proof github page"), "."
+            ),
 
             m("p.f6",
               m("b", "Key"),

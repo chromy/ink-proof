@@ -1,37 +1,31 @@
 # Todo
-- Fetch drivertools
-- Make work with github actions
+- Add Windows support
 - Clean out logging
-
-# Punt
-- more help
-- more readme?
-- choose output dir
-- output text
-- help rollover
-- add timestamp/hostname to metadata
-- inter links
-- Program description
-- vendor deps
-- player -> runtime
-- highlight help / metadata
+- More help?
+- More readme?
+- Fix choosing output dir
+- Text mode output
+- Rollover help
+- Add hostname to metadata
+- Compiler/Runtime description in output
+- More old inkjs versions?
+- More old inklecate versions?
+- Finish player -> runtime rename
 - Reproduction instructions
-- serve mode
-- only show errors filter
+- Serve mode
+- Only show errors tests filter
 - xxd mode
-- Non-determinism
-- gif/video
-- favicon
+- Test for non-determinism (run each test multiple times)
+- gif/video showing features
+- Add favicon
 - inline diff
-- github link
-- old inkjs versions
 - overview stats
 - show newline, tab
-- show runtime next to exitcode
-- extend line to bottom of page
-- hide output dir option
+- show elapsed time next to exitcode
 
 # Done
+- Fetch drivertools
+- Make work with github actions
 - style pass?
 - fix lhs sizing
 - dynamically find drivers
@@ -47,7 +41,7 @@
 - add metadata
 - add help page
 - center lhs
--- timeout control
+- timeout control
 - argument pressing
 - pre line wrapping
 - input handling
@@ -68,5 +62,9 @@
 - fix up status
 - compile examples and test players with them
 - more examples
+- Add timestamp to metadata
+- vendor deps
+- github link
+- extend line to bottom of page
 
 

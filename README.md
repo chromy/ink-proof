@@ -3,7 +3,8 @@
 
 [Ink](https//github.com/inkle/ink) is an open-source narrative scripting language created by [Inkle](https://www.inklestudios.com). `ink-proof` is a tool for acceptance testing Ink compilers and runtimes.
 
-Users author interactive stories as `.ink` [files](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md). Inkle provide a compiler (`inklecate`) which converts these `.ink` files to a [json based format](https://github.com/inkle/ink/blob/master/Documentation/ink_JSON_runtime_format.md) which is then interpreted by C# runtime.
+Users author interactive stories as `.ink` [files](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md).
+Inkle provide a compiler (`inklecate`) which converts these `.ink` files to a [json based format](https://github.com/inkle/ink/blob/master/Documentation/ink_JSON_runtime_format.md) which is then interpreted by C# runtime.
 There other compiler and runtime implementations at various levels of completeness.
 For example [inkjs](https://github.com/y-lohse/inkjs), [godot-ink](https://github.com/paulloz/godot-ink), [inkcpp](https://github.com/brwarner/inkcpp).
 
@@ -38,8 +39,17 @@ To do this it uses small shim programs which wrap each compiler or runtime to pr
 These shim programs live in the [driver](driver) directory.
 
 Compiler drivers are named with the suffix `_compiler_driver`, for example [inklecate_v0.9.0_compiler_driver](drivers/inklecate_v0.9.0_compiler_driver).
+During testing they are invoked as follows:
+```bash
+your_fancy_compiler_driver -o output.json input.ink
+```
 
 Runtime drivers are named with the suffix `_runtime_driver`, for example [inkjs_v1.9.0_runtime_driver](driver/inkjs_v1.9.0_runtime_driver).
+During testing they are invoked (kind of) as follows:
+```bash
+cat input.txt | your_fancy_runtime_driver story.json >actual_output.txt
+```
+In other words they get passed the compiled json story as the only command line argument then they get fed each choice as input and are expected to produce the output on stdout.
 
-
+This is how `inklecate` works currently so for other runtimes/compilers this means writing a wrapper to make them work like `inklecate`.
 
