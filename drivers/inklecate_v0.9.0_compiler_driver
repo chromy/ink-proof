@@ -1,1 +1,6 @@
-../deps/inklecate_v0.9.0/inklecate
+#!/bin/bash
+if [[ "$(uname)" == 'Darwin' ]]; then
+  deps/inklecate_v0.9.0/inklecate "$@"
+else
+  mono deps/inklecate_v0.9.0/inklecate.exe "$@"
+fi
