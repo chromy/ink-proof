@@ -33,7 +33,13 @@ Json test cases live under the [bytecode](bytecode) directory.
 They consist of a `.json` file (for example [bytecode/B005/story.json](bytecode/B005/story.json)), an [input.txt](bytecode/B005/input.txt) file, an expected output file named [transcript.txt](bytecode/B005/transcript.txt), and metadata in a file named [metadata.json](bytecode/B005/metadata.json).
 
 ## Compiler and runtime drivers
-`ink-proof` can test both Ink compilers and runtimes
+`ink-proof` can test both Ink compilers and Ink runtimes.
+To do this it uses small shim programs which wrap each compiler or runtime to provide a consist interface.
+These shim programs live in the [driver](driver) directory.
+
+Compiler drivers are named with the suffix `_compiler_driver`, for example [inklecate_v0.9.0_compiler_driver](drivers/inklecate_v0.9.0_compiler_driver).
+
+Runtime drivers are named with the suffix `_runtime_driver`, for example [inkjs_v1.9.0_runtime_driver](driver/inkjs_v1.9.0_runtime_driver).
 
 
 
