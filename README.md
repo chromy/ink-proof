@@ -1,7 +1,8 @@
 # ink-proof
 *Conformance testing for [Ink](https://github.com/inkle/ink) compilers and runtimes*
 
-[Ink](https//github.com/inkle/ink) is an open-source narrative scripting language created by [Inkle](https://www.inklestudios.com). `ink-proof` is a tool for acceptance testing Ink compilers and runtimes.
+[Ink](https//github.com/inkle/ink) is an open-source narrative scripting language created by [Inkle](https://www.inklestudios.com).
+`ink-proof` is a tool for acceptance testing Ink compilers and runtimes.
 
 Users author interactive stories as `.ink` [files](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md).
 Inkle provide a compiler (`inklecate`) which converts these `.ink` files to a [json based format](https://github.com/inkle/ink/blob/master/Documentation/ink_JSON_runtime_format.md) which is then interpreted by C# runtime.
