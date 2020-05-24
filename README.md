@@ -5,14 +5,14 @@
 `ink-proof` is a tool for acceptance testing Ink compilers and runtimes.
 
 Users author interactive stories as `.ink` [files](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md).
-Inkle provide a compiler (`inklecate`) which converts these `.ink` files to a [json based format](https://github.com/inkle/ink/blob/master/Documentation/ink_JSON_runtime_format.md) which is then interpreted by C# runtime.
-There other compiler and runtime implementations at various levels of completeness.
+Inkle provide a compiler (`inklecate`) which converts these `.ink` files to a [json based format](https://github.com/inkle/ink/blob/master/Documentation/ink_JSON_runtime_format.md) which is then interpreted by a C# runtime.
+There are other compiler and runtime implementations at various levels of completeness.
 For example [inkjs](https://github.com/y-lohse/inkjs), [godot-ink](https://github.com/paulloz/godot-ink), [inkcpp](https://github.com/brwarner/inkcpp).
 
 `ink-proof` consists of a number of `.ink` and `.json` test cases.
-Each test case contains an `.ink` or `.json` source file, an input file, and an expected output or "transcript" file.
+Each test case contains a `.ink` or `.json` source file, an input file, and an expected output or "transcript" file.
 `ink-proof` runs each test case against every runtime and compiler and compares the actual output to the expected output.
-Results are generated as webpage for easy viewing.
+Results are generated as a webpage for easy viewing.
 
 The latest public run of `ink-proof` is available at https://chromy.github.io/ink-proof however you can also run the tool offline as follows:
 
