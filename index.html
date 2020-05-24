@@ -109,12 +109,14 @@
               vnode.attrs.exampleName, " ",
               m("span.f3.gray", example.metadata.oneLineDescription)),
             m(".fl.w-50.pr2",
-              m("p", "Bytecode"),
+              m("p", example.sourcePath.endsWith(".json") ? "Bytecode" : "Ink"),
               m(FileView, {path: example.sourcePath}),
             ),
             m(".fl.w-50",
               m("p", "Input"),
               m(FileView, {path: example.inputPath}),
+              m("p", "Expected output"),
+              m(FileView, {path: example.expectedPath}),
             ),
           ];
         }
