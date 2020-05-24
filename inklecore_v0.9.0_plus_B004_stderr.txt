@@ -1,0 +1,26 @@
+﻿
+Unhandled Exception:
+System.Exception: Failed to parse number value: 9007199254740992
+  at Ink.Runtime.SimpleJson+Reader.ReadNumber () [0x000a9] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader.ReadObject () [0x0003f] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader.ReadArray () [0x0002c] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader.ReadObject () [0x00023] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader.ReadDictionary () [0x00059] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader.ReadObject () [0x00017] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader..ctor (System.String text) [0x0001a] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson.TextToDictionary (System.String text) [0x00000] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.Story..ctor (System.String jsonString) [0x00008] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.CommandLineTool..ctor (System.String[] args) [0x00384] in <9ee7cbbfbba043e0bb8517c387cf7d74>:0 
+  at Ink.CommandLineTool.Main (System.String[] args) [0x00000] in <9ee7cbbfbba043e0bb8517c387cf7d74>:0 
+[ERROR] FATAL UNHANDLED EXCEPTION: System.Exception: Failed to parse number value: 9007199254740992
+  at Ink.Runtime.SimpleJson+Reader.ReadNumber () [0x000a9] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader.ReadObject () [0x0003f] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader.ReadArray () [0x0002c] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader.ReadObject () [0x00023] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader.ReadDictionary () [0x00059] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader.ReadObject () [0x00017] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson+Reader..ctor (System.String text) [0x0001a] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.SimpleJson.TextToDictionary (System.String text) [0x00000] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.Runtime.Story..ctor (System.String jsonString) [0x00008] in <57ee0e607ab9469aa26865486fe01f67>:0 
+  at Ink.CommandLineTool..ctor (System.String[] args) [0x00384] in <9ee7cbbfbba043e0bb8517c387cf7d74>:0 
+  at Ink.CommandLineTool.Main (System.String[] args) [0x00000] in <9ee7cbbfbba043e0bb8517c387cf7d74>:0 
