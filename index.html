@@ -8,9 +8,18 @@
       main {
         display: grid;
         grid:
-            "overview nav" auto
-            "overview focus" 1fr
-          / auto 1fr;
+                "nav" fit-content(100px)
+                "overview" fit-content(100px)
+                "focus" 1fr
+              / 1fr;
+      }
+      @media screen and (min-width: 1024px) {
+        main {
+          grid:
+             "overview nav" auto
+             "overview focus" 1fr
+           / auto 1fr;
+        }
       }
     </style>
   </head>
