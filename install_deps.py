@@ -54,6 +54,16 @@ DEPS = [
      '3e9c0f4fb6e6ee2feed740ad2783f687e870917d',
      'linux'),
 
+    # Inklecate v0.9.0 + hacks to make running JSON work
+    ('deps/inklecore_v0.9.0_plus.zip',
+     'https://storage.googleapis.com/tsundoku-io-deps/inklecore_mac_v0.9.0_plus.zip',
+     '0340d84d574d0d9cd9b313251e7dcd8e8743843f',
+     'darwin'),
+    ('deps/inklecore_v0.9.0_plus.zip',
+     'https://storage.googleapis.com/tsundoku-io-deps/inklecore_linux_v0.9.0_plus.zip',
+     '56e5b556171a9c0af855ea22dfc5f4441f10e5e3',
+     'linux'),
+
     # Inklecate v0.8.3
     ('deps/inklecate_v0.8.3.zip',
      'https://github.com/inkle/ink/releases/download/0.8.3/inklecate_mac.zip',
@@ -75,6 +85,7 @@ DEPS = [
      'https://github.com/y-lohse/inkjs/archive/v1.9.0.zip',
      'bd2d492ae7a88c2897583dc1b9c517d648da5917',
      'all'),
+
 ]
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
