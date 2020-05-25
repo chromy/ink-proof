@@ -9,6 +9,8 @@ import json
 import shutil
 import argparse
 
+SEM = None
+
 DEFAULT_OUT_PATH = os.path.abspath("out")
 DEFAULT_TIMEOUT_S = 20
 DEFAULT_COMPILER = "inklecate_v0.9.0"
@@ -371,6 +373,13 @@ class Job(object):
         for dep in self.deps:
             if dep.return_code != 0:
                 return
+        await SEM.acquire()
+        try:
+            await self.do_work()
+        finally:
+            SEM.release()
+
+    async def do_work(self):
         for path in self.expected_paths:
             if not os.path.isfile(path):
                 self.infra_error = FileNotFoundError(path)
@@ -438,6 +447,8 @@ def job_stats(jobs):
     return done, total
 
 async def run_jobs(jobs):
+    global SEM
+    SEM = asyncio.Semaphore(30)
     for job in jobs:
         job.begin()
     print(job_stats(jobs))
