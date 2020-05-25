@@ -199,6 +199,25 @@
         }
       };
 
+      const FocusTestCases = {
+        view(vnode) {
+          return [
+            m("table",
+              m("tr", m("th", "Name"), m("th", "Description")),
+              Data.examples.map(e => {
+                return m("tr",
+                  m("td.code", m(m.route.Link, {
+                    href: `/example/${e.name}`,
+                    class: 'link code db',
+                  }, e.name)),
+                  m("td", e.metadata.oneLineDescription),
+                );
+              }),
+            ),
+          ];
+        },
+      };
+
       const FocusHelp = {
         view(vnode) {
           const program = Data.programByName[vnode.attrs.programName];
@@ -362,17 +381,20 @@
               m(m.route.Link, {
                 href: `/help`,
                 class: 'f6 f5-l link bg-animate black-80 hover-bg-lightest-blue dib pa3 ph4-l small-caps' + (m.route.get() === "/help" ? " bg-lightest-blue" : ""),
-              }, "help"),
-              " ",
+              }, "help"), " ",
+              m(m.route.Link, {
+                href: `/tests`,
+                class: 'f6 f5-l link bg-animate black-80 hover-bg-lightest-blue dib pa3 ph4-l small-caps'
+                + (m.route.get() === "/tests" ? " bg-lightest-blue" : ""),
+              }, "test cases"),
               m(m.route.Link, {
                 href: `/metadata`,
                 class: 'f6 f5-l link bg-animate black-80 hover-bg-lightest-blue dib pa3 ph4-l small-caps'
                 + (m.route.get() === "/metadata" ? " bg-lightest-blue" : ""),
               }, "metadata"),
-
             );
-        }}
-
+        }
+      }
 
       const Overview = {
         view() {
@@ -494,6 +516,12 @@
           "/metadata": {
             render(vnode) {
               return m(OverviewWithFocus, m(FocusMetadata));
+            },
+          },
+
+          "/tests": {
+            render(vnode) {
+              return m(OverviewWithFocus, m(FocusTestCases));
             },
           },
 
