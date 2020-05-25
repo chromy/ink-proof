@@ -600,6 +600,9 @@ def main(root):
             shutil.rmtree(os.path.join(output_directory, 'ink'))
         shutil.copytree(os.path.join(root, 'ink'), output_ink_path)
 
+        shutil.copy(os.path.join(root, 'deps', 'mithril.min.js'), output_directory)
+        shutil.copy(os.path.join(root, 'deps', 'tachyons.min.css'), output_directory)
+
 if __name__ == '__main__':
     root = os.path.dirname(os.path.abspath(__file__))
     sys.exit(main(root))

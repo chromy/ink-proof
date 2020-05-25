@@ -86,6 +86,18 @@ DEPS = [
      'bd2d492ae7a88c2897583dc1b9c517d648da5917',
      'all'),
 
+    # Tachyons
+    ('deps/tachyons.min.css',
+     'https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css',
+     '6d136aca9df01d6632c0f37023555c285391115a',
+     'all'),
+
+    # Mithril
+    ('deps/mithril.min.js',
+     'https://unpkg.com/mithril@2.0.4/mithril.min.js',
+     '9e5a41aa225db74dfefdb0b44e3699959b5ed7e4',
+     'all'),
+
 ]
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
