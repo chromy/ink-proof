@@ -1,6 +1,6 @@
 #!/usr/local/bin/node
 
-var Story = require('../deps/inkjs_v1.9.0/templates/browser_with_server/ink.js').Story;
+var Story = require('../deps/inkjs_v1.9.0').Story;
 var fs = require('fs');
 var bytecodePath = process.argv[2];
 var bytecode = fs.readFileSync(bytecodePath, 'UTF-8').replace(/^\uFEFF/, '');

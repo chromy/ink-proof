@@ -74,16 +74,16 @@ DEPS = [
      'f97a77b6da4c2956603b877d27456d6172300656',
      'linux'),
 
-    # Inkjs 1.10.4
-    ('deps/inkjs_v1.10.4.zip',
-     'https://github.com/y-lohse/inkjs/archive/v1.10.4.zip',
-     '4ea267b8b56a6eb34d248509d2c305b31f30c227',
+    # Inkjs 1.10.5
+    ('deps/inkjs_v1.10.5.tgz',
+     'https://registry.npmjs.org/inkjs/-/inkjs-1.10.5.tgz',
+     '7703339328a61902d5d32800f4774f0aa0c3d32e',
      'all'),
 
     # Inkjs 1.9.0
-    ('deps/inkjs_v1.9.0.zip',
-     'https://github.com/y-lohse/inkjs/archive/v1.9.0.zip',
-     'bd2d492ae7a88c2897583dc1b9c517d648da5917',
+    ('deps/inkjs_v1.9.0.tgz',
+     'https://registry.npmjs.org/inkjs/-/inkjs-1.9.0.tgz',
+     'c7818565141ec4a42bc0c6ccf415510c21729db2',
      'all'),
 
     # Tachyons
