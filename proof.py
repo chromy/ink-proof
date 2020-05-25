@@ -10,7 +10,7 @@ import shutil
 import argparse
 
 DEFAULT_OUT_PATH = os.path.abspath("out")
-DEFAULT_TIMEOUT_S = 10
+DEFAULT_TIMEOUT_S = 20
 DEFAULT_COMPILER = "inklecate_v0.9.0"
 DEFAULT_RUNTIME = "inklecate_runtime_v0.9.0+"
 
@@ -583,11 +583,6 @@ def main(root):
                 results.append(PlayerResult(player, example, job_a, job_b))
         asyncio.run(run_jobs(jobs))
 
-        for result in results:
-            result.settle()
-        fout = context_stack.enter_context(open(os.path.join(output_directory, 'summary.json'), 'w'))
-
-        write_json(fout, selected_drivers, bytecode_examples+ink_examples, results)
         shutil.copyfile(os.path.join(root, 'index.html'), os.path.join(output_directory, 'index.html'))
 
         output_bytecode_path = os.path.join(output_directory, 'bytecode')
@@ -602,6 +597,11 @@ def main(root):
 
         shutil.copy(os.path.join(root, 'deps', 'mithril.min.js'), output_directory)
         shutil.copy(os.path.join(root, 'deps', 'tachyons.min.css'), output_directory)
+
+        for result in results:
+            result.settle()
+        fout = context_stack.enter_context(open(os.path.join(output_directory, 'summary.json'), 'w'))
+        write_json(fout, selected_drivers, bytecode_examples+ink_examples, results)
 
 if __name__ == '__main__':
     root = os.path.dirname(os.path.abspath(__file__))
