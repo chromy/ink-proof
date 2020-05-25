@@ -210,7 +210,9 @@
                     href: `/example/${e.name}`,
                     class: 'link code db',
                   }, e.name)),
-                  m("td", e.metadata.oneLineDescription),
+                  m("td", e.metadata.oneLineDescription, e.metadata.tags.map(t => {
+                    return m("span.code.ml2.ph1.ba.b--black-10.bg-washed-blue.br1.w3.f7", t);
+                  })),
                 );
               }),
             ),
