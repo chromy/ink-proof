@@ -318,14 +318,14 @@ class CompilerDriver(object):
 def find_all_bytecode_examples(root):
     folder = os.path.join(root, 'bytecode')
     files = os.listdir(folder)
-    names = set([name.split('.')[0] for name in files])
+    names = set([name for name in files if os.path.isdir(os.path.join(folder, name))])
     examples = [BytecodeExample.fromDirAndName(folder, name) for name in names]
     return sorted(examples)
 
 def find_all_ink_examples(root):
     folder = os.path.join(root, 'ink')
     files = os.listdir(folder)
-    names = set([name.split('.')[0] for name in files])
+    names = set([name for name in files if os.path.isdir(os.path.join(folder, name))])
     examples = [InkExample.fromDirAndName(folder, name) for name in names]
     return sorted(examples)
 
