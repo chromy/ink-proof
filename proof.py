@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import time
+import re
 import os
 import asyncio
 import tempfile
@@ -504,6 +505,7 @@ def main(root):
     parser.add_argument('--timeout', default=DEFAULT_TIMEOUT_S, type=int, help=f'timeout for subprocesses (default: {DEFAULT_TIMEOUT_S}s)')
     parser.add_argument('--reference-runtime', default=DEFAULT_RUNTIME, help=f'set the reference runtime (default: {DEFAULT_RUNTIME})')
     parser.add_argument('--reference-compiler', default=DEFAULT_COMPILER, help=f'set the reference compiler (default: {DEFAULT_COMPILER})')
+    parser.add_argument('--examples', default=".*", help=f'filter for examples (default: .*)')
     parser.add_argument('drivers', nargs='*', default=default_drivers, help=f'drivers to test (default: {" ".join(default_drivers)}) (available: {" ".join(available_runtimes+available_compilers)})')
     args = parser.parse_args()
 
@@ -544,6 +546,10 @@ def main(root):
     for d in player_drivers:
         if d.name in args.drivers:
             selected_runtimes.append(d)
+
+    r = re.compile(args.examples)
+    bytecode_examples = [e for e in bytecode_examples if r.match(e.name)]
+    ink_examples = [e for e in ink_examples if r.match(e.name)]
 
     try:
         for example in bytecode_examples + ink_examples:
