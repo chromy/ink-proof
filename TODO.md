@@ -22,6 +22,8 @@
 - overview stats
 - show newline, tab
 - show elapsed time next to exitcode
+- investigate https://github.com/y-lohse/inkjs/blob/master/tests/specs/ink/Diverts.spec.js#L112
+
 
 # Done
 - Fetch drivertools

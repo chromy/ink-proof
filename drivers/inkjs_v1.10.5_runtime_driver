@@ -30,13 +30,21 @@ process.stdin.on('end', () => {
       story.ChooseChoiceIndex(choiceIndex);
     }
 
+    if (story.currentTags.length) {
+      lastText = "# tags: " + story.currentTags.join(", ");
+      process.stdout.write(lastText);
+    }
+
     lastText = story.ContinueMaximally();
     process.stdout.write(lastText);
+
+    if (story.currentTags.length) {
+      lastText = "# tags: " + story.currentTags.join(", ");
+      process.stdout.write(lastText);
+    }
   }
   if (!lastText.endsWith("\n")) {
     process.stdout.write("\n");
   }
 
 });
-
-

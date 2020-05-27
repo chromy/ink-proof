@@ -125,7 +125,7 @@ class PlayerResult(object):
             "errPath": err_path,
             "expectedPath": transcript_path,
             "exitcode": self.player_job.return_code,
-            "playCmdline": self.player_job.command,
+            "playCmdline": self.player_job.nice_command(),
         }
         if self.compile_job:
             compile_stdout_path = os.path.relpath(self.compile_job.stdout_path, 'out')
@@ -200,7 +200,7 @@ class CompilerResult(object):
             "outPath": out_path,
             "errPath": err_path,
             "expectedPath": transcript_path,
-            "compileCmdline": self.compile_job.command,
+            "compileCmdline": self.compile_job.nice_command(),
             "compileOutPath": compile_stdout_path,
             "compileErrPath": compile_stderr_path,
             "compileBytecodePath": compile_bytecode_path,
@@ -223,6 +223,7 @@ class BytecodeExample(object):
         self.input_path = input_path
         self.transcript_path = transcript_path
         self.metadata_path = metadata_path
+        self._metadata = None
 
     def __lt__(self, o):
         return self.name < o.name
@@ -230,18 +231,25 @@ class BytecodeExample(object):
     def check(self):
         check_path(self.bytecode_path)
 
+    def metadata(self):
+        if not self._metadata:
+            with open(self.metadata_path) as f:
+                self._metadata = json.load(f)
+        return self._metadata
+
+    def should_ignore(self):
+        return self.metadata().get("hide", False)
+
     def describe(self):
         source_path = os.path.relpath(self.bytecode_path)
         input_path = os.path.relpath(self.input_path)
         expected_path = os.path.relpath(self.transcript_path)
-        with open(self.metadata_path) as f:
-            metadata = json.load(f)
         return {
             "name": self.name,
             "sourcePath": source_path,
             "inputPath": input_path,
             "expectedPath": expected_path,
-            "metadata": metadata,
+            "metadata": self.metadata(),
         }
 
     @staticmethod
@@ -259,22 +267,30 @@ class InkExample(object):
         self.input_path = input_path
         self.transcript_path = transcript_path
         self.metadata_path = metadata_path
+        self._metadata = None
 
     def __lt__(self, o):
         return self.name < o.name
+
+    def metadata(self):
+        if not self._metadata:
+            with open(self.metadata_path) as f:
+                self._metadata = json.load(f)
+        return self._metadata
+
+    def should_ignore(self):
+        return self.metadata().get("hide", False)
 
     def describe(self):
         source_path = os.path.relpath(self.ink_path)
         input_path = os.path.relpath(self.input_path)
         expected_path = os.path.relpath(self.transcript_path)
-        with open(self.metadata_path) as f:
-            metadata = json.load(f)
         return {
             "name": self.name,
             "sourcePath": source_path,
             "inputPath": input_path,
             "expectedPath": expected_path,
-            "metadata": metadata,
+            "metadata": self.metadata(),
         }
 
     def check(self):
@@ -367,6 +383,11 @@ class Job(object):
 
     def begin(self):
         self.task = asyncio.create_task(self.run())
+
+    def nice_command(self):
+        if self.stdin_path:
+            return ["cat", self.stdin_path, "|"] + self.command
+        return self.command
 
     async def run(self):
         if self.deps:
@@ -550,6 +571,8 @@ def main(root):
     r = re.compile(args.examples)
     bytecode_examples = [e for e in bytecode_examples if r.match(e.name)]
     ink_examples = [e for e in ink_examples if r.match(e.name)]
+    bytecode_examples = [e for e in bytecode_examples if not e.should_ignore()]
+    ink_examples = [e for e in ink_examples if not e.should_ignore()]
 
     try:
         for example in bytecode_examples + ink_examples:
