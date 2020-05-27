@@ -458,7 +458,9 @@
       const OverviewWithFocus = {
         view(vnode) {
           return [
-            m("", { style: "grid-area: overview;"} , m(".pa3", m(Overview))),
+            m(".overflow-y-scroll-ns.vh-100-ns", { style: "grid-area: overview;"} ,
+              m(".pa3", m(Overview)),
+            ),
             m(".bl", { style: "grid-area: nav;"}, m(Nav)),
             m(".bl", { style: "grid-area: focus;"}, m(".pa3", vnode.children)),
           ];
