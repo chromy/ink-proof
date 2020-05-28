@@ -489,6 +489,12 @@
           },
 
           "/golden/:exampleName": {
+            onmatch(args, requestedPath, route) {
+              if (Data.exampleByName[args.exampleName] === undefined) {
+                m.route.set("/");
+              }
+            },
+
             render(vnode) {
               return m(OverviewWithFocus, m(FocusGolden, {
                 exampleName: vnode.attrs.exampleName,
@@ -497,6 +503,12 @@
           },
 
           "/program/:programName": {
+            onmatch(args, requestedPath, route) {
+              if (Data.programByName[args.programName] === undefined) {
+                m.route.set("/");
+              }
+            },
+
             render(vnode) {
               return m(OverviewWithFocus, m(FocusProgram, {
                 programName: vnode.attrs.programName,
@@ -505,6 +517,12 @@
           },
 
           "/result/:resultIndex": {
+            onmatch(args, requestedPath, route) {
+              if (Data.results[args.resultIndex] === undefined) {
+                m.route.set("/");
+              }
+            },
+
             render(vnode) {
               return m(OverviewWithFocus, m(FocusResult, {
                 resultIndex: vnode.attrs.resultIndex,
