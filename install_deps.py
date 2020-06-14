@@ -74,6 +74,12 @@ DEPS = [
      'f97a77b6da4c2956603b877d27456d6172300656',
      'linux'),
 
+    # Inkjs 1.11.0
+    ('deps/inkjs_v1.11.0.tgz',
+     'https://registry.npmjs.org/inkjs/-/inkjs-1.11.0.tgz',
+     '4293cd843371c147b75968760d1a03525e740763',
+     'all'),
+
     # Inkjs 1.10.5
     ('deps/inkjs_v1.10.5.tgz',
      'https://registry.npmjs.org/inkjs/-/inkjs-1.10.5.tgz',
