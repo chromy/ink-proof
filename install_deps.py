@@ -53,6 +53,10 @@ DEPS = [
      'https://github.com/inkle/ink/releases/download/0.9.0/inklecate_windows_and_linux.zip',
      '3e9c0f4fb6e6ee2feed740ad2783f687e870917d',
      'linux'),
+    ('deps/inklecate_v0.9.0.zip',
+     'https://github.com/inkle/ink/releases/download/0.9.0/inklecate_windows_and_linux.zip',
+     '3e9c0f4fb6e6ee2feed740ad2783f687e870917d',
+     'windows'),
 
     # Inklecate v0.9.0 + hacks to make running JSON work
     ('deps/inklecore_v0.9.0_plus.zip',
@@ -73,6 +77,10 @@ DEPS = [
      'https://github.com/inkle/ink/releases/download/0.8.3/inklecate_windows_and_linux.zip',
      'f97a77b6da4c2956603b877d27456d6172300656',
      'linux'),
+    ('deps/inklecate_v0.8.3.zip',
+     'https://github.com/inkle/ink/releases/download/0.8.3/inklecate_windows_and_linux.zip',
+     'f97a77b6da4c2956603b877d27456d6172300656',
+     'windows'),
 
     # Inkjs 1.11.0
     ('deps/inkjs_v1.11.0.tgz',
