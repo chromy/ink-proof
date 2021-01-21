@@ -67,6 +67,10 @@ DEPS = [
      'https://storage.googleapis.com/tsundoku-io-deps/inklecore_linux_v0.9.0_plus.zip',
      '56e5b556171a9c0af855ea22dfc5f4441f10e5e3',
      'linux'),
+    ('deps/inklecore_v0.9.0_plus.zip',
+     'https://storage.googleapis.com/tsundoku-io-deps/inklecore_linux_v0.9.0_plus.zip',
+     '56e5b556171a9c0af855ea22dfc5f4441f10e5e3',
+     'windows'),
 
     # Inklecate v0.8.3
     ('deps/inklecate_v0.8.3.zip',
