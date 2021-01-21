@@ -436,28 +436,28 @@ def make_name(*things, suffix=None):
 def player_job(player, bytecode, output_directory, timeout, deps=None):
     stderr_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stderr.txt'))
     stdout_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stdout.txt'))
-    return Job([player.path, bytecode.bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=bytecode.input_path, timeout=timeout, deps=deps)
+    return Job([sys.executable, player.path, bytecode.bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=bytecode.input_path, timeout=timeout, deps=deps)
 
 def player2_job(player, bytecode, bytecode_path, input_path, output_directory, timeout, deps=None):
     stderr_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stderr.txt'))
     stdout_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stdout.txt'))
-    return Job([player.path, bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=input_path, timeout=timeout, deps=deps)
+    return Job([sys.executable, player.path, bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=input_path, timeout=timeout, deps=deps)
 
 def compile_player_job(compiler, player, example, bytecode_path, output_directory, timeout, deps=None):
     stderr_path = os.path.join(output_directory, make_name(compiler, player, example, suffix='_stderr.txt'))
     stdout_path = os.path.join(output_directory, make_name(compiler, player, example, suffix='_stdout.txt'))
-    return Job([player.path, bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=example.input_path, timeout=timeout, deps=deps, expected_paths=[bytecode_path])
+    return Job([sys.executable, player.path, bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=example.input_path, timeout=timeout, deps=deps, expected_paths=[bytecode_path])
 
 def compile_job(compiler, ink, output_directory, timeout):
     stderr_path = os.path.join(output_directory, make_name(compiler, ink, suffix='_stderr.txt'))
     stdout_path = os.path.join(output_directory, make_name(compiler, ink, suffix='_stdout.txt'))
     out_path = os.path.join(output_directory, make_name(compiler, ink, suffix='_out.json'))
-    job = Job([compiler.path, "-o", out_path, ink.ink_path], stderr_path=stderr_path, stdout_path=stdout_path, timeout=timeout)
+    job = Job([sys.executable, compiler.path, "-o", out_path, ink.ink_path], stderr_path=stderr_path, stdout_path=stdout_path, timeout=timeout)
     job.out_path = out_path
     return job
 
 def diff_job(a_path, b_path, out_path, deps=None):
-    return Job(['diff', a_path, b_path], stdout_path=out_path, deps=deps)
+    return Job([sys.executable, 'diff.py', a_path, b_path], stdout_path=out_path, deps=deps)
 
 def job_stats(jobs):
     total = 0

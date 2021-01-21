@@ -23,6 +23,8 @@
 - show newline, tab
 - show elapsed time next to exitcode
 - investigate https://github.com/y-lohse/inkjs/blob/master/tests/specs/ink/Diverts.spec.js#L112
+- Errors on no examples
+- Errors on no compiler with Ixxx examples
 
 
 # Done

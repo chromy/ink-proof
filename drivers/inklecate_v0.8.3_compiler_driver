@@ -1,7 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env python3
+
+import os
+import sys
+import shutil
+import platform
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DIR = os.path.join(ROOT, 'deps', 'inklecate_v0.8.3')
+if platform.system().lower() == "linux":
+  MONO_PATH = shutil.which("mono")
+  PATH = os.path.join(DIR, 'inklecate.exe')
+  ARGS = [MONO_PATH, PATH] + sys.argv[1:]
+  os.execv(MONO_PATH, ARGS)
+else:
+  PATH = os.path.join(DIR, 'inklecate')
+  ARGS = [PATH] + sys.argv[1:]
+  os.execv(PATH, ARGS)
+
 if [[ "$(uname)" == 'Darwin' ]]; then
   deps/inklecate_v0.8.3/inklecate "$@"
 else
-  mono deps/inklecate_v0.8.3/inklecate.exe "$@"
 fi
 
