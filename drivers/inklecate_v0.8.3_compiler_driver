@@ -16,4 +16,5 @@ else:
   PATH = os.path.join(DIR, 'inklecate')
   ARGS = ["inklecate"] + sys.argv[1:]
   os.execv(PATH, ARGS)
+  sleep(2)
 

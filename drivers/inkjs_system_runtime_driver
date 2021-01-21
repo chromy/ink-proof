@@ -9,3 +9,4 @@ SRC = os.path.join(ROOT, 'inkjs_system.js')
 NODE_PATH = shutil.which("node")
 ARGS = ["node", SRC] + sys.argv[1:]
 os.execv(NODE_PATH, ARGS)
+sleep(2)

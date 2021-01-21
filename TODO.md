@@ -1,5 +1,4 @@
 # Todo
-- Add Windows support
 - Clean out logging
 - More help?
 - More readme?
@@ -25,9 +24,11 @@
 - investigate https://github.com/y-lohse/inkjs/blob/master/tests/specs/ink/Diverts.spec.js#L112
 - Errors on no examples
 - Errors on no compiler with Ixxx examples
+- Replace execv + sleep on windows
 
 
 # Done
+- Windows support
 - Fetch drivertools
 - Make work with github actions
 - style pass?
