@@ -6,6 +6,6 @@ import shutil
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PATH = os.path.join(ROOT, 'deps', 'inklecore_v0.9.0', 'inklecate')
-ARGS = [PATH] + sys.argv[1:]
+ARGS = ["inklecate"] + sys.argv[1:]
 os.execv(PATH, ARGS)
 

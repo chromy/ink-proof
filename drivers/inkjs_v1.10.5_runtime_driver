@@ -7,5 +7,5 @@ import shutil
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, 'inkjs_v1.10.5.js')
 NODE_PATH = shutil.which("node")
-ARGS = [NODE_PATH, SRC] + sys.argv[1:]
+ARGS = ["node", SRC] + sys.argv[1:]
 os.execv(NODE_PATH, ARGS)
