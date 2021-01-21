@@ -574,6 +574,13 @@ def main(root):
     bytecode_examples = [e for e in bytecode_examples if not e.should_ignore()]
     ink_examples = [e for e in ink_examples if not e.should_ignore()]
 
+    if not bytecode_examples and not ink_examples:
+        parser.error(f"The example regex \"{args.examples}\" matches no examples.")
+
+    if ink_examples and not selected_compilers:
+        compilers = ", ".join(available_compilers)
+        parser.error(f"You must nominate a compiler driver to run Ink test cases. Available compilers: {compilers}")
+
     try:
         for example in bytecode_examples + ink_examples:
             example.check()
