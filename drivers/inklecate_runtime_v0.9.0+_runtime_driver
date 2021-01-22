@@ -5,6 +5,5 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PATH = os.path.join(ROOT, 'deps', 'inklecore_v0.9.0_plus', 'inklecate')
-print(PATH)
 ARGS = ["inklecate"] + sys.argv[1:]
 os.execv(PATH, ARGS)
