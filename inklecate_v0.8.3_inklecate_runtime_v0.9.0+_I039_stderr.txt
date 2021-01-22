@@ -9,103 +9,103 @@ Stacktrace:
   at System.Runtime.Remoting.Contexts.Context..cctor () [0x00000] in <d13c8b563008422a8c5aaec0a74089cc>:0
   at (wrapper runtime-invoke) object.runtime_invoke_void (object,intptr,intptr,intptr) [0x0001e] in <d13c8b563008422a8c5aaec0a74089cc>:0
 /proc/self/maps:
-405bb000-405cb000 rwxp 00000000 00:00 0 
-40e1a000-40e2a000 rwxp 00000000 00:00 0 
-560902e40000-560903261000 r-xp 00000000 08:11 546696                     /home/runner/work/ink-proof/ink-proof/deps/inklecore_v0.9.0_plus/inklecate
-560903460000-560903467000 r--p 00420000 08:11 546696                     /home/runner/work/ink-proof/ink-proof/deps/inklecore_v0.9.0_plus/inklecate
-560903467000-56090346b000 rw-p 00427000 08:11 546696                     /home/runner/work/ink-proof/ink-proof/deps/inklecore_v0.9.0_plus/inklecate
-56090346b000-560903481000 rw-p 00000000 00:00 0 
-560904f4f000-560904ff0000 rw-p 00000000 00:00 0                          [heap]
-7f79f4000000-7f79f4051000 rw-p 00000000 00:00 0 
-7f79f4051000-7f79f8000000 ---p 00000000 00:00 0 
-7f79f9993000-7f79f9994000 ---p 00000000 00:00 0 
-7f79f9994000-7f79f9995000 rw-p 00000000 00:00 0 
-7f79f9995000-7f79f999d000 ---p 00000000 00:00 0 
-7f79f999d000-7f79f9b94000 rw-p 00000000 00:00 0 
-7f79f9b94000-7f79f9fff000 r--p 00000000 08:11 1063913                    /usr/lib/mono/4.5/mscorlib.dll
-7f79f9fff000-7f79fafff000 rw-p 00000000 00:00 0 
-7f79fafff000-7f79fb000000 ---p 00000000 00:00 0 
-7f79fb000000-7f79fbc00000 rw-p 00000000 00:00 0 
-7f79fbc10000-7f79fbc14000 rw-p 00000000 00:00 0 
-7f79fbc56000-7f79fbc98000 rw-p 00000000 00:00 0 
-7f79fbc99000-7f79fbc9c000 rw-p 00000000 00:00 0 
-7f79fbc9c000-7f79fbcfb000 ---p 00000000 00:00 0 
-7f79fbcfb000-7f79fbe6e000 r--p 00000000 08:11 7782                       /usr/lib/locale/C.UTF-8/LC_COLLATE
-7f79fbe6e000-7f79fc055000 r-xp 00000000 08:11 2168                       /lib/x86_64-linux-gnu/libc-2.27.so
-7f79fc055000-7f79fc255000 ---p 001e7000 08:11 2168                       /lib/x86_64-linux-gnu/libc-2.27.so
-7f79fc255000-7f79fc259000 r--p 001e7000 08:11 2168                       /lib/x86_64-linux-gnu/libc-2.27.so
-7f79fc259000-7f79fc25b000 rw-p 001eb000 08:11 2168                       /lib/x86_64-linux-gnu/libc-2.27.so
-7f79fc25b000-7f79fc25f000 rw-p 00000000 00:00 0 
-7f79fc25f000-7f79fc276000 r-xp 00000000 08:11 89596                      /lib/x86_64-linux-gnu/libgcc_s.so.1
-7f79fc276000-7f79fc475000 ---p 00017000 08:11 89596                      /lib/x86_64-linux-gnu/libgcc_s.so.1
-7f79fc475000-7f79fc476000 r--p 00016000 08:11 89596                      /lib/x86_64-linux-gnu/libgcc_s.so.1
-7f79fc476000-7f79fc477000 rw-p 00017000 08:11 89596                      /lib/x86_64-linux-gnu/libgcc_s.so.1
-7f79fc477000-7f79fc491000 r-xp 00000000 08:11 2240                       /lib/x86_64-linux-gnu/libpthread-2.27.so
-7f79fc491000-7f79fc690000 ---p 0001a000 08:11 2240                       /lib/x86_64-linux-gnu/libpthread-2.27.so
-7f79fc690000-7f79fc691000 r--p 00019000 08:11 2240                       /lib/x86_64-linux-gnu/libpthread-2.27.so
-7f79fc691000-7f79fc692000 rw-p 0001a000 08:11 2240                       /lib/x86_64-linux-gnu/libpthread-2.27.so
-7f79fc692000-7f79fc696000 rw-p 00000000 00:00 0 
-7f79fc696000-7f79fc699000 r-xp 00000000 08:11 2185                       /lib/x86_64-linux-gnu/libdl-2.27.so
-7f79fc699000-7f79fc898000 ---p 00003000 08:11 2185                       /lib/x86_64-linux-gnu/libdl-2.27.so
-7f79fc898000-7f79fc899000 r--p 00002000 08:11 2185                       /lib/x86_64-linux-gnu/libdl-2.27.so
-7f79fc899000-7f79fc89a000 rw-p 00003000 08:11 2185                       /lib/x86_64-linux-gnu/libdl-2.27.so
-7f79fc89a000-7f79fc8a1000 r-xp 00000000 08:11 2242                       /lib/x86_64-linux-gnu/librt-2.27.so
-7f79fc8a1000-7f79fcaa0000 ---p 00007000 08:11 2242                       /lib/x86_64-linux-gnu/librt-2.27.so
-7f79fcaa0000-7f79fcaa1000 r--p 00006000 08:11 2242                       /lib/x86_64-linux-gnu/librt-2.27.so
-7f79fcaa1000-7f79fcaa2000 rw-p 00007000 08:11 2242                       /lib/x86_64-linux-gnu/librt-2.27.so
-7f79fcaa2000-7f79fcc3f000 r-xp 00000000 08:11 2186                       /lib/x86_64-linux-gnu/libm-2.27.so
-7f79fcc3f000-7f79fce3e000 ---p 0019d000 08:11 2186                       /lib/x86_64-linux-gnu/libm-2.27.so
-7f79fce3e000-7f79fce3f000 r--p 0019c000 08:11 2186                       /lib/x86_64-linux-gnu/libm-2.27.so
-7f79fce3f000-7f79fce40000 rw-p 0019d000 08:11 2186                       /lib/x86_64-linux-gnu/libm-2.27.so
-7f79fce40000-7f79fce69000 r-xp 00000000 08:11 2090                       /lib/x86_64-linux-gnu/ld-2.27.so
-7f79fce6a000-7f79fce6c000 rw-p 00000000 00:00 0 
-7f79fce6d000-7f79fce6f000 rw-p 00000000 00:00 0 
-7f79fce70000-7f79fce84000 rw-p 00000000 00:00 0 
-7f79fce84000-7f79fceb5000 r--p 00000000 08:11 7783                       /usr/lib/locale/C.UTF-8/LC_CTYPE
-7f79fceb5000-7f79fd050000 r--p 00000000 08:11 7779                       /usr/lib/locale/locale-archive
-7f79fd050000-7f79fd057000 rw-p 00000000 00:00 0 
-7f79fd057000-7f79fd058000 rw-s 00000000 00:1a 7                          /dev/shm/mono.5707
-7f79fd058000-7f79fd059000 r--p 00000000 08:11 7788                       /usr/lib/locale/C.UTF-8/LC_NUMERIC
-7f79fd059000-7f79fd05a000 r--p 00000000 08:11 7791                       /usr/lib/locale/C.UTF-8/LC_TIME
-7f79fd05a000-7f79fd05b000 r--p 00000000 08:11 7786                       /usr/lib/locale/C.UTF-8/LC_MONETARY
-7f79fd05b000-7f79fd05c000 r--p 00000000 08:11 7793                       /usr/lib/locale/C.UTF-8/LC_MESSAGES/SYS_LC_MESSAGES
-7f79fd05c000-7f79fd05d000 r--p 00000000 08:11 7789                       /usr/lib/locale/C.UTF-8/LC_PAPER
-7f79fd05d000-7f79fd05e000 r--p 00000000 08:11 7787                       /usr/lib/locale/C.UTF-8/LC_NAME
-7f79fd05e000-7f79fd05f000 r--p 00000000 08:11 7781                       /usr/lib/locale/C.UTF-8/LC_ADDRESS
-7f79fd05f000-7f79fd060000 r--p 00000000 08:11 7790                       /usr/lib/locale/C.UTF-8/LC_TELEPHONE
-7f79fd060000-7f79fd061000 r--p 00000000 08:11 7785                       /usr/lib/locale/C.UTF-8/LC_MEASUREMENT
-7f79fd061000-7f79fd068000 r--s 00000000 08:11 5034                       /usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache
-7f79fd068000-7f79fd069000 r--p 00000000 08:11 7784                       /usr/lib/locale/C.UTF-8/LC_IDENTIFICATION
-7f79fd069000-7f79fd06a000 r--p 00029000 08:11 2090                       /lib/x86_64-linux-gnu/ld-2.27.so
-7f79fd06a000-7f79fd06b000 rw-p 0002a000 08:11 2090                       /lib/x86_64-linux-gnu/ld-2.27.so
-7f79fd06b000-7f79fd06c000 rw-p 00000000 00:00 0 
-7ffd26d14000-7ffd26d1c000 ---p 00000000 00:00 0 
-7ffd274f2000-7ffd27513000 rw-p 00000000 00:00 0                          [stack]
-7ffd2754c000-7ffd2754f000 r--p 00000000 00:00 0                          [vvar]
-7ffd2754f000-7ffd27550000 r-xp 00000000 00:00 0                          [vdso]
+4182e000-4183e000 rwxp 00000000 00:00 0 
+418b7000-418c7000 rwxp 00000000 00:00 0 
+56225ef3b000-56225f35c000 r-xp 00000000 08:01 552023                     /home/runner/work/ink-proof/ink-proof/deps/inklecore_v0.9.0_plus/inklecate
+56225f55b000-56225f562000 r--p 00420000 08:01 552023                     /home/runner/work/ink-proof/ink-proof/deps/inklecore_v0.9.0_plus/inklecate
+56225f562000-56225f566000 rw-p 00427000 08:01 552023                     /home/runner/work/ink-proof/ink-proof/deps/inklecore_v0.9.0_plus/inklecate
+56225f566000-56225f57c000 rw-p 00000000 00:00 0 
+562260503000-5622605a4000 rw-p 00000000 00:00 0                          [heap]
+7f1a70000000-7f1a70051000 rw-p 00000000 00:00 0 
+7f1a70051000-7f1a74000000 ---p 00000000 00:00 0 
+7f1a75f94000-7f1a763ff000 r--p 00000000 08:01 1063913                    /usr/lib/mono/4.5/mscorlib.dll
+7f1a763ff000-7f1a773ff000 rw-p 00000000 00:00 0 
+7f1a773ff000-7f1a77400000 ---p 00000000 00:00 0 
+7f1a77400000-7f1a78000000 rw-p 00000000 00:00 0 
+7f1a78060000-7f1a78064000 rw-p 00000000 00:00 0 
+7f1a78067000-7f1a78068000 ---p 00000000 00:00 0 
+7f1a78068000-7f1a78069000 rw-p 00000000 00:00 0 
+7f1a78069000-7f1a78071000 ---p 00000000 00:00 0 
+7f1a78071000-7f1a78268000 rw-p 00000000 00:00 0 
+7f1a782a6000-7f1a782e8000 rw-p 00000000 00:00 0 
+7f1a782e9000-7f1a782ec000 rw-p 00000000 00:00 0 
+7f1a782ec000-7f1a7834b000 ---p 00000000 00:00 0 
+7f1a7834b000-7f1a784be000 r--p 00000000 08:01 7782                       /usr/lib/locale/C.UTF-8/LC_COLLATE
+7f1a784be000-7f1a786a5000 r-xp 00000000 08:01 2168                       /lib/x86_64-linux-gnu/libc-2.27.so
+7f1a786a5000-7f1a788a5000 ---p 001e7000 08:01 2168                       /lib/x86_64-linux-gnu/libc-2.27.so
+7f1a788a5000-7f1a788a9000 r--p 001e7000 08:01 2168                       /lib/x86_64-linux-gnu/libc-2.27.so
+7f1a788a9000-7f1a788ab000 rw-p 001eb000 08:01 2168                       /lib/x86_64-linux-gnu/libc-2.27.so
+7f1a788ab000-7f1a788af000 rw-p 00000000 00:00 0 
+7f1a788af000-7f1a788c6000 r-xp 00000000 08:01 89596                      /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f1a788c6000-7f1a78ac5000 ---p 00017000 08:01 89596                      /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f1a78ac5000-7f1a78ac6000 r--p 00016000 08:01 89596                      /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f1a78ac6000-7f1a78ac7000 rw-p 00017000 08:01 89596                      /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f1a78ac7000-7f1a78ae1000 r-xp 00000000 08:01 2240                       /lib/x86_64-linux-gnu/libpthread-2.27.so
+7f1a78ae1000-7f1a78ce0000 ---p 0001a000 08:01 2240                       /lib/x86_64-linux-gnu/libpthread-2.27.so
+7f1a78ce0000-7f1a78ce1000 r--p 00019000 08:01 2240                       /lib/x86_64-linux-gnu/libpthread-2.27.so
+7f1a78ce1000-7f1a78ce2000 rw-p 0001a000 08:01 2240                       /lib/x86_64-linux-gnu/libpthread-2.27.so
+7f1a78ce2000-7f1a78ce6000 rw-p 00000000 00:00 0 
+7f1a78ce6000-7f1a78ce9000 r-xp 00000000 08:01 2185                       /lib/x86_64-linux-gnu/libdl-2.27.so
+7f1a78ce9000-7f1a78ee8000 ---p 00003000 08:01 2185                       /lib/x86_64-linux-gnu/libdl-2.27.so
+7f1a78ee8000-7f1a78ee9000 r--p 00002000 08:01 2185                       /lib/x86_64-linux-gnu/libdl-2.27.so
+7f1a78ee9000-7f1a78eea000 rw-p 00003000 08:01 2185                       /lib/x86_64-linux-gnu/libdl-2.27.so
+7f1a78eea000-7f1a78ef1000 r-xp 00000000 08:01 2242                       /lib/x86_64-linux-gnu/librt-2.27.so
+7f1a78ef1000-7f1a790f0000 ---p 00007000 08:01 2242                       /lib/x86_64-linux-gnu/librt-2.27.so
+7f1a790f0000-7f1a790f1000 r--p 00006000 08:01 2242                       /lib/x86_64-linux-gnu/librt-2.27.so
+7f1a790f1000-7f1a790f2000 rw-p 00007000 08:01 2242                       /lib/x86_64-linux-gnu/librt-2.27.so
+7f1a790f2000-7f1a7928f000 r-xp 00000000 08:01 2186                       /lib/x86_64-linux-gnu/libm-2.27.so
+7f1a7928f000-7f1a7948e000 ---p 0019d000 08:01 2186                       /lib/x86_64-linux-gnu/libm-2.27.so
+7f1a7948e000-7f1a7948f000 r--p 0019c000 08:01 2186                       /lib/x86_64-linux-gnu/libm-2.27.so
+7f1a7948f000-7f1a79490000 rw-p 0019d000 08:01 2186                       /lib/x86_64-linux-gnu/libm-2.27.so
+7f1a79490000-7f1a794b9000 r-xp 00000000 08:01 2090                       /lib/x86_64-linux-gnu/ld-2.27.so
+7f1a794ba000-7f1a794bc000 rw-p 00000000 00:00 0 
+7f1a794bd000-7f1a794bf000 rw-p 00000000 00:00 0 
+7f1a794c0000-7f1a794d4000 rw-p 00000000 00:00 0 
+7f1a794d4000-7f1a79505000 r--p 00000000 08:01 7783                       /usr/lib/locale/C.UTF-8/LC_CTYPE
+7f1a79505000-7f1a796a0000 r--p 00000000 08:01 7779                       /usr/lib/locale/locale-archive
+7f1a796a0000-7f1a796a7000 rw-p 00000000 00:00 0 
+7f1a796a7000-7f1a796a8000 rw-s 00000000 00:1a 5                          /dev/shm/mono.5562
+7f1a796a8000-7f1a796a9000 r--p 00000000 08:01 7788                       /usr/lib/locale/C.UTF-8/LC_NUMERIC
+7f1a796a9000-7f1a796aa000 r--p 00000000 08:01 7791                       /usr/lib/locale/C.UTF-8/LC_TIME
+7f1a796aa000-7f1a796ab000 r--p 00000000 08:01 7786                       /usr/lib/locale/C.UTF-8/LC_MONETARY
+7f1a796ab000-7f1a796ac000 r--p 00000000 08:01 7793                       /usr/lib/locale/C.UTF-8/LC_MESSAGES/SYS_LC_MESSAGES
+7f1a796ac000-7f1a796ad000 r--p 00000000 08:01 7789                       /usr/lib/locale/C.UTF-8/LC_PAPER
+7f1a796ad000-7f1a796ae000 r--p 00000000 08:01 7787                       /usr/lib/locale/C.UTF-8/LC_NAME
+7f1a796ae000-7f1a796af000 r--p 00000000 08:01 7781                       /usr/lib/locale/C.UTF-8/LC_ADDRESS
+7f1a796af000-7f1a796b0000 r--p 00000000 08:01 7790                       /usr/lib/locale/C.UTF-8/LC_TELEPHONE
+7f1a796b0000-7f1a796b1000 r--p 00000000 08:01 7785                       /usr/lib/locale/C.UTF-8/LC_MEASUREMENT
+7f1a796b1000-7f1a796b8000 r--s 00000000 08:01 5034                       /usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache
+7f1a796b8000-7f1a796b9000 r--p 00000000 08:01 7784                       /usr/lib/locale/C.UTF-8/LC_IDENTIFICATION
+7f1a796b9000-7f1a796ba000 r--p 00029000 08:01 2090                       /lib/x86_64-linux-gnu/ld-2.27.so
+7f1a796ba000-7f1a796bb000 rw-p 0002a000 08:01 2090                       /lib/x86_64-linux-gnu/ld-2.27.so
+7f1a796bb000-7f1a796bc000 rw-p 00000000 00:00 0 
+7fff0b21e000-7fff0b226000 ---p 00000000 00:00 0 
+7fff0b9fc000-7fff0ba1d000 rw-p 00000000 00:00 0                          [stack]
+7fff0baf9000-7fff0bafc000 r--p 00000000 00:00 0                          [vvar]
+7fff0bafc000-7fff0bafd000 r-xp 00000000 00:00 0                          [vdso]
 ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
 
 Native stacktrace:
 
-	inklecate(+0xc8f7a) [0x560902f08f7a]
-	/lib/x86_64-linux-gnu/libpthread.so.0(+0x12980) [0x7f79fc489980]
-	/lib/x86_64-linux-gnu/libc.so.6(gsignal+0xc7) [0x7f79fbeacfb7]
-	/lib/x86_64-linux-gnu/libc.so.6(abort+0x141) [0x7f79fbeae921]
-	inklecate(+0x2e3b88) [0x560903123b88]
-	inklecate(monoeg_g_logv+0x4d) [0x56090313912d]
-	inklecate(monoeg_g_log+0x8f) [0x5609031391ff]
-	inklecate(+0x1af201) [0x560902fef201]
-	inklecate(+0x2667c7) [0x5609030a67c7]
-	inklecate(+0x1de1a0) [0x56090301e1a0]
-	inklecate(+0x81539) [0x560902ec1539]
-	inklecate(+0x846f9) [0x560902ec46f9]
-	inklecate(+0x7c5a4) [0x560902ebc5a4]
-	inklecate(+0x144fc3) [0x560902f84fc3]
-	inklecate(+0x146f8f) [0x560902f86f8f]
-	inklecate(+0x3fb99) [0x560902e7fb99]
-	inklecate(+0xcc555) [0x560902f0c555]
-	inklecate(+0xccfe5) [0x560902f0cfe5]
-	[0x405bc513]
+	inklecate(+0xc8f7a) [0x56225f003f7a]
+	/lib/x86_64-linux-gnu/libpthread.so.0(+0x12980) [0x7f1a78ad9980]
+	/lib/x86_64-linux-gnu/libc.so.6(gsignal+0xc7) [0x7f1a784fcfb7]
+	/lib/x86_64-linux-gnu/libc.so.6(abort+0x141) [0x7f1a784fe921]
+	inklecate(+0x2e3b88) [0x56225f21eb88]
+	inklecate(monoeg_g_logv+0x4d) [0x56225f23412d]
+	inklecate(monoeg_g_log+0x8f) [0x56225f2341ff]
+	inklecate(+0x1af201) [0x56225f0ea201]
+	inklecate(+0x2667c7) [0x56225f1a17c7]
+	inklecate(+0x1de1a0) [0x56225f1191a0]
+	inklecate(+0x81539) [0x56225efbc539]
+	inklecate(+0x846f9) [0x56225efbf6f9]
+	inklecate(+0x7c5a4) [0x56225efb75a4]
+	inklecate(+0x144fc3) [0x56225f07ffc3]
+	inklecate(+0x146f8f) [0x56225f081f8f]
+	inklecate(+0x3fb99) [0x56225ef7ab99]
+	inklecate(+0xcc555) [0x56225f007555]
+	inklecate(+0xccfe5) [0x56225f007fe5]
+	[0x4182f513]
 
 Debug info from gdb:
 
