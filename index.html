@@ -145,9 +145,9 @@
         view(vnode) {
           const text = Files.get(vnode.attrs.path);
           const isLoading = Files.isLoading(vnode.attrs.path);
-          return text === "" ? m('p', m("i.gray", isLoading ? "Loading" : "Empty file")) : m("pre.f7", {
+          return text === "" ? m('p', m("i.gray", isLoading ? "Loading" : "Empty file")) : m("pre.f6", {
             style: "white-space: pre-wrap; tab-size: 4;",
-          }, text);
+                }, text ? text.split("\n").map(l => [l, m('span', {title: "newline", style: "user-select: none; color: #eaeaea;"}, "↵"), "\n"]) : "");
         },
       };
 
