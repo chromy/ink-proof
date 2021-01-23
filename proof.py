@@ -642,6 +642,7 @@ def main(root):
         asyncio.run(run_jobs(jobs))
 
         shutil.copyfile(os.path.join(root, 'index.html'), os.path.join(output_directory, 'index.html'))
+        shutil.copyfile(os.path.join(root, 'docs', 'logo.png'), os.path.join(output_directory, 'favicon.png'))
 
         output_bytecode_path = os.path.join(output_directory, 'bytecode')
         if os.path.exists(output_bytecode_path):

@@ -11,21 +11,22 @@
 - More old inklecate versions?
 - Finish player -> runtime rename
 - Reproduction instructions
-- Serve mode
 - Only show errors tests filter
 - xxd mode
 - Test for non-determinism (run each test multiple times)
 - gif/video showing features
-- Add favicon
 - inline diff
 - overview stats
-- show newline, tab
+- show tab
 - show elapsed time next to exitcode
 - investigate https://github.com/y-lohse/inkjs/blob/master/tests/specs/ink/Diverts.spec.js#L112
 - Replace execv + sleep on windows
 
 
 # Done
+- Add favicon
+- show newline
+- Serve mode
 - Errors on no examples
 - Errors on no compiler with Ixxx examples
 - Windows support
