@@ -17,6 +17,16 @@ DEFAULT_TIMEOUT_S = 20
 DEFAULT_COMPILER = "inklecate_v0.9.0"
 DEFAULT_RUNTIME = "inklecate_runtime_v0.9.0+"
 
+def serve(directory, port):
+  import http.server
+  import socketserver
+  class Handler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+      super().__init__(*args, directory=directory, **kwargs)
+  with socketserver.TCPServer(("", port), Handler) as httpd:
+    print(f"Serving test output at http://localhost:{port}",)
+    httpd.serve_forever()
+
 class SummaryItem(object):
     def __init__(self, name, human_name):
         self.name = name
@@ -527,6 +537,7 @@ def main(root):
     parser.add_argument('--reference-runtime', default=DEFAULT_RUNTIME, help=f'set the reference runtime (default: {DEFAULT_RUNTIME})')
     parser.add_argument('--reference-compiler', default=DEFAULT_COMPILER, help=f'set the reference compiler (default: {DEFAULT_COMPILER})')
     parser.add_argument('--examples', default=".*", help=f'filter for examples (default: .*)')
+    parser.add_argument('--serve', nargs='?', const=8000, type=int, help=f'after running serve the output directory at given port (default: 8000)')
     parser.add_argument('drivers', nargs='*', default=default_drivers, help=f'drivers to test (default: {" ".join(default_drivers)}) (available: {" ".join(available_runtimes+available_compilers)})')
     args = parser.parse_args()
 
@@ -649,6 +660,10 @@ def main(root):
             result.settle()
         fout = context_stack.enter_context(open(os.path.join(output_directory, 'summary.json'), 'w'))
         write_json(fout, selected_drivers, bytecode_examples+ink_examples, results)
+
+    print(f"Test output has been generated to {args.out}")
+    if args.serve:
+      serve(args.out, args.serve)
 
 if __name__ == '__main__':
     root = os.path.dirname(os.path.abspath(__file__))
