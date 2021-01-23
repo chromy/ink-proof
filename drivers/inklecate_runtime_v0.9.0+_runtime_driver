@@ -2,8 +2,10 @@
 
 import os
 import sys
+import platform
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PATH = os.path.join(ROOT, 'deps', 'inklecore_v0.9.0_plus', 'inklecate')
-ARGS = ["inklecate"] + sys.argv[1:]
+NAME = "inklecate" if platform.system() == "windows" else PATH
+ARGS = [NAME] + sys.argv[1:]
 os.execv(PATH, ARGS)
