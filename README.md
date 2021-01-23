@@ -1,7 +1,7 @@
 # ink-proof
 *Conformance testing for [Ink](https://github.com/inkle/ink) compilers and runtimes*
 
-![ink-proof screenshot](docs/screenshot.md)
+![ink-proof screenshot](docs/screenshot.png)
 
 [Ink](https//github.com/inkle/ink) is an open-source narrative scripting language created by [Inkle](https://www.inklestudios.com).
 `ink-proof` is a tool for conformance testing Ink compilers and runtimes.
