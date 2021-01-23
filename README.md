@@ -23,7 +23,7 @@ git clone https://github.com/chromy/ink-proof.git
 cd ink-proof
 python3 install_deps.py
 python3 proof.py --serve
-# Now navigate to http://localhost:8080
+# Now navigate to http://localhost:8000
 ```
 
 ## Test cases
