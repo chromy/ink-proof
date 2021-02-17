@@ -419,7 +419,7 @@ class Job(object):
         fin = open(self.stdin_path) if self.stdin_path else None
         fout = open(self.stdout_path, 'wb') if self.stdout_path else None
         ferr = open(self.stderr_path, 'wb') if self.stderr_path else None
-        print('Running "{}"'.format(' '.join(self.command)))
+        # print('Running "{}"'.format(' '.join(self.command)))
         try:
             process = await asyncio.create_subprocess_exec(self.command[0], *self.command[1:], stdout=fout, stderr=ferr, stdin=fin)
         except PermissionError as e:
@@ -478,15 +478,15 @@ def job_stats(jobs):
             done += 1
     return done, total
 
-async def run_jobs(jobs):
+async def run_jobs(jobs, results):
     global SEM
     SEM = asyncio.Semaphore(30)
     for job in jobs:
         job.begin()
-    print(job_stats(jobs))
+    # print(job_stats(jobs))
     done, pending = await asyncio.wait([job.task for job in jobs])
-    print(job_stats(jobs))
-    print(done)
+    # print(job_stats(jobs))
+    # print(done)
 
 def ensure_dir(directory):
     if not os.path.exists(directory):
@@ -517,6 +517,25 @@ def write_json(fout, drivers, examples, results):
         "examples": examples,
         "results": results,
     }, fout)
+
+def decide_exit_status(results):
+    any_failed = any(r.status is FailStatus for r in results)
+    any_non_success = any(r.status is not SuccessStatus for r in results)
+    if any_failed:
+      return 1
+    elif any_non_success:
+      return 2
+    else:
+      return 0
+
+    #for r in results:
+    #  if r.status is SuccessStatus:
+    #    print('.', end='')
+    #  elif r.status is FailStatus:
+    #    print('F', end='')
+    #  else:
+    #    print('E', end='')
+
 
 def main(root):
     bytecode_examples = find_all_bytecode_examples(root)
@@ -639,7 +658,7 @@ def main(root):
                 jobs.append(job_a)
                 jobs.append(job_b)
                 results.append(PlayerResult(player, example, job_a, job_b))
-        asyncio.run(run_jobs(jobs))
+        asyncio.run(run_jobs(jobs, results))
 
         shutil.copyfile(os.path.join(root, 'index.html'), os.path.join(output_directory, 'index.html'))
         shutil.copyfile(os.path.join(root, 'docs', 'logo.png'), os.path.join(output_directory, 'favicon.png'))
@@ -662,9 +681,20 @@ def main(root):
         fout = context_stack.enter_context(open(os.path.join(output_directory, 'summary.json'), 'w'))
         write_json(fout, selected_drivers, bytecode_examples+ink_examples, results)
 
+    for r in results:
+      if r.status is SuccessStatus:
+        print('.', end='')
+      elif r.status is FailStatus:
+        print('F', end='')
+      else:
+        print('E', end='')
+
+    print('')
     print(f"Test output has been generated to {args.out}")
     if args.serve:
       serve(args.out, args.serve)
+    else:
+      exit(decide_exit_status(results))
 
 if __name__ == '__main__':
     root = os.path.dirname(os.path.abspath(__file__))
