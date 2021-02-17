@@ -528,15 +528,6 @@ def decide_exit_status(results):
     else:
       return 0
 
-    #for r in results:
-    #  if r.status is SuccessStatus:
-    #    print('.', end='')
-    #  elif r.status is FailStatus:
-    #    print('F', end='')
-    #  else:
-    #    print('E', end='')
-
-
 def main(root):
     bytecode_examples = find_all_bytecode_examples(root)
     ink_examples = find_all_ink_examples(root)
