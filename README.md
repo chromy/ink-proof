@@ -54,3 +54,6 @@ In other words they get passed the compiled json story as the only command line 
 
 This is how `inklecate` works currently so for other runtimes/compilers this means writing a wrapper to make them work like `inklecate`.
 
+<a href="https://chromy.github.io/ink-proof/#!/program/inklecate_v0.8.3" alt="inklecate test results">
+<img src="https://chromy.github.io/ink-proof/badge.svg"/></a>
+
