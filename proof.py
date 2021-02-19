@@ -533,6 +533,13 @@ def summarise_results(results):
     passed = len([r for r in results if r.status is SuccessStatus])
     return f'{passed}/{total} passed'
 
+def write_badges(results, output_directory):
+    badge_path = os.path.join(output_directory, 'badge.svg')
+    with open(badge_path, 'w') as f:
+        f.write("""
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="126" height="20" role="img" aria-label="inklecate v1: 10/100"><title>inklecate v1: 10/100</title><g shape-rendering="crispEdges"><rect width="77" height="20" fill="#555"/><rect x="77" width="49" height="20" fill="#e05d44"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="395" y="140" transform="scale(.1)" fill="#fff" textLength="670">inklecate v1</text><text x="1005" y="140" transform="scale(.1)" fill="#fff" textLength="390">10/100</text></g></svg>
+        """)
+
 def main(root):
     bytecode_examples = find_all_bytecode_examples(root)
     ink_examples = find_all_ink_examples(root)
@@ -688,6 +695,8 @@ def main(root):
 
     #print('')
     #print(f"Test output has been generated to {args.out}")
+
+    write_badges(results, output_directory)
     print(summarise_results(results))
     if args.serve:
       serve(args.out, args.serve)
