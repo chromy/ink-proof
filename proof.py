@@ -522,11 +522,16 @@ def decide_exit_status(results):
     any_failed = any(r.status is FailStatus for r in results)
     any_non_success = any(r.status is not SuccessStatus for r in results)
     if any_failed:
-      return 1
+        return 1
     elif any_non_success:
-      return 2
+        return 2
     else:
-      return 0
+        return 0
+
+def summarise_results(results):
+    total = len(results)
+    passed = len([r for r in results if r.status is SuccessStatus])
+    return f'{passed}/{total} passed'
 
 def main(root):
     bytecode_examples = find_all_bytecode_examples(root)
@@ -672,16 +677,18 @@ def main(root):
         fout = context_stack.enter_context(open(os.path.join(output_directory, 'summary.json'), 'w'))
         write_json(fout, selected_drivers, bytecode_examples+ink_examples, results)
 
-    for r in results:
-      if r.status is SuccessStatus:
-        print('.', end='')
-      elif r.status is FailStatus:
-        print('F', end='')
-      else:
-        print('E', end='')
+    # Re-add behind --verbose?
+    #for r in results:
+    #  if r.status is SuccessStatus:
+    #    print('.', end='')
+    #  elif r.status is FailStatus:
+    #    print('F', end='')
+    #  else:
+    #    print('E', end='')
 
-    print('')
-    print(f"Test output has been generated to {args.out}")
+    #print('')
+    #print(f"Test output has been generated to {args.out}")
+    print(summarise_results(results))
     if args.serve:
       serve(args.out, args.serve)
     else:
