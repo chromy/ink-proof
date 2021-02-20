@@ -95,7 +95,7 @@ InfraErrorStatus = Status("INFRA_ERROR", "🏗️", "Infra error", [
 ])
 
 class PlayerResult(object):
-    def __init__(self, program, example, player_job, diff_job, compile_job=None, softwear_under_test):
+    def __init__(self, program, example, player_job, diff_job, compile_job=None):
         self.program = program
         self.example = example
         self.player_job = player_job
