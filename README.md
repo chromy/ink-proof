@@ -54,6 +54,11 @@ In other words they get passed the compiled json story as the only command line 
 
 This is how `inklecate` works currently so for other runtimes/compilers this means writing a wrapper to make them work like `inklecate`.
 
-<a href="https://chromy.github.io/ink-proof/#!/program/inklecate_v0.8.3" alt="inklecate test results">
-<img src="https://chromy.github.io/ink-proof/badge.svg"/></a>
+<a href="https://chromy.github.io/ink-proof/#!/program/inkjs_v1.10.5" alt="inkjs_v1.10.5 test results"><img src="https://chromy.github.io/ink-proof/inkjs_v1.10.5.svg"/></a>
+<a href="https://chromy.github.io/ink-proof/#!/program/inkjs_v1.11.0" alt="inkjs_v1.11.0 test results"><img src="https://chromy.github.io/ink-proof/inkjs_v1.11.0.svg"/></a>
+<a href="https://chromy.github.io/ink-proof/#!/program/inkjs_v1.9.0" alt="inkjs_v1.9.0 test results"><img src="https://chromy.github.io/ink-proof/inkjs_v1.9.0.svg"/></a>
+<a href="https://chromy.github.io/ink-proof/#!/program/inklecate_runtime_v0.9.0" alt="inklecate_runtime_v0.9.0 test results"><img src="https://chromy.github.io/ink-proof/inklecate_runtime_v0.9.0.svg"/></a>
+<a href="https://chromy.github.io/ink-proof/#!/program/inklecate_runtime_v0.9.0+" alt="inklecate_runtime_v0.9.0+ test results"><img src="https://chromy.github.io/ink-proof/inklecate_runtime_v0.9.0+.svg"/></a>
+<a href="https://chromy.github.io/ink-proof/#!/program/inklecate_v0.9.0" alt="inklecate_v0.9.0 test results"><img src="https://chromy.github.io/ink-proof/inklecate_v0.9.0.svg"/></a>
+<a href="https://chromy.github.io/ink-proof/#!/program/inklecate_v0.8.3" alt="inklecate_v0.8.3 test results"><img src="https://chromy.github.io/ink-proof/inklecate_v0.8.3.svg"/></a>
 

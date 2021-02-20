@@ -9,6 +9,7 @@ import contextlib
 import json
 import shutil
 import argparse
+import itertools
 
 SEM = None
 
@@ -94,13 +95,14 @@ InfraErrorStatus = Status("INFRA_ERROR", "🏗️", "Infra error", [
 ])
 
 class PlayerResult(object):
-    def __init__(self, program, example, player_job, diff_job, compile_job=None):
+    def __init__(self, program, example, player_job, diff_job, compile_job=None, softwear_under_test):
         self.program = program
         self.example = example
         self.player_job = player_job
         self.diff_job = diff_job
         self.infra_error = None
         self.compile_job = compile_job
+        self.softwear_under_test = self.program
 
     def settle(self):
         if self.player_job.timed_out:
@@ -160,6 +162,7 @@ class CompilerResult(object):
         self.player_job = player_job
         self.diff_job = diff_job
         self.infra_error = None
+        self.softwear_under_test = self.compiler
 
     def settle(self):
         if self.compile_job.timed_out:
@@ -320,6 +323,7 @@ class PlayerDriver(object):
     def __init__(self, name, path):
         self.name = name
         self.path = path
+        self.human_name = name.replace('_', ' ')
 
     def __lt__(self, o):
         return self.name < o.name
@@ -334,6 +338,7 @@ class CompilerDriver(object):
     def __init__(self, name, path):
         self.name = name
         self.path = path
+        self.human_name = name.replace('_', ' ')
 
     def __lt__(self, o):
         return self.name < o.name
@@ -533,12 +538,39 @@ def summarise_results(results):
     passed = len([r for r in results if r.status is SuccessStatus])
     return f'{passed}/{total} passed'
 
+def render_badge(label, message, color):
+    caption = f'{label}: {message}'
+    label_size = 6 * len(label)
+    message_size = 6 * len(message)
+    margin = 10
+    label_width = label_size + margin * 2
+    message_width = message_size + margin * 2
+    total_width = label_width + message_width
+    label_x = margin + label_size / 2
+    message_x = label_size + 3 * margin + message_size / 2
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{total_width}" height="20" role="img" aria-label="{caption}">
+  <title>{caption}</title>
+  <g shape-rendering="crispEdges">
+  <rect width="{label_width}" height="20" fill="#555"/>
+  <rect x="{label_width}" width="{message_width}" height="20" fill="{color}"/></g>
+  <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110">
+  <text x="{label_x*10}" y="140" transform="scale(.1)" fill="#fff" textLength="{label_size*10}">{label}</text>
+  <text x="{message_x*10}" y="140" transform="scale(.1)" fill="#fff" textLength="{message_size*10}">{message}</text>
+ </g></svg>'''
+
 def write_badges(results, output_directory):
-    badge_path = os.path.join(output_directory, 'badge.svg')
-    with open(badge_path, 'w') as f:
-        f.write("""
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="126" height="20" role="img" aria-label="inklecate v1: 10/100"><title>inklecate v1: 10/100</title><g shape-rendering="crispEdges"><rect width="77" height="20" fill="#555"/><rect x="77" width="49" height="20" fill="#e05d44"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text x="395" y="140" transform="scale(.1)" fill="#fff" textLength="670">inklecate v1</text><text x="1005" y="140" transform="scale(.1)" fill="#fff" textLength="390">10/100</text></g></svg>
-        """)
+    keyfunc = lambda r: r.softwear_under_test
+    results = sorted(results, key=keyfunc)
+    for softwear_under_test, rs in itertools.groupby(results, key=keyfunc):
+        rs = list(rs)
+        label = softwear_under_test.human_name
+        name = softwear_under_test.name
+        badge_path = os.path.join(output_directory, f'{name}.svg')
+        total = len(rs)
+        passed = len([r for r in rs if r.status is SuccessStatus])
+        color = '#97ca00' if total == passed else '#e05d44'
+        with open(badge_path, 'w') as f:
+            f.write(render_badge(label, f'{passed}/{total}', color))
 
 def main(root):
     bytecode_examples = find_all_bytecode_examples(root)
