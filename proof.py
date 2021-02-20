@@ -568,7 +568,7 @@ def write_badges(results, output_directory):
         badge_path = os.path.join(output_directory, f'{name}.svg')
         total = len(rs)
         passed = len([r for r in rs if r.status is SuccessStatus])
-        color = '#97ca00' if total == passed else '#e05d44'
+        color = '#97ca00' if passed >= total * 0.9 else '#e05d44'
         with open(badge_path, 'w') as f:
             f.write(render_badge(label, f'{passed}/{total}', color))
 
