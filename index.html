@@ -114,6 +114,13 @@
         },
       };
 
+      const BadgeView = {
+        view(vnode) {
+          const svg = Files.get(vnode.attrs.name);
+          return m(m.route.Link, {href: vnode.attrs.href}, m.trust(svg));
+        }
+      };
+
       const FocusExample = {
         view(vnode) {
           const example = Data.exampleByName[vnode.attrs.exampleName];
@@ -181,6 +188,10 @@
           const program = Data.programByName[programName];
           return [
             m('h1', program.kind, " ", program.name),
+            m('.', m(BadgeView, {
+                href: `/program/${program.name}`,
+                name: `${program.name}.svg`,
+            })),
             m("p", Data.results.filter(r => r.program === programName).map(r => {
               const status = Data.statuses[r.status];
               return m(m.route.Link, {
@@ -226,8 +237,17 @@
 
       const FocusHelp = {
         view(vnode) {
-          const program = Data.programByName[vnode.attrs.programName];
           return [
+            Data.programs.map(p => {
+              return m('span.mr2', m(BadgeView, {
+                href: `/program/${p.name}`,
+                name: `${p.name}.svg`,
+              }));
+            }),
+            m('', m(m.route.Link, {
+              href: `/badges`,
+              class: 'link f7',
+            }, "badges")),
             m("p.mw6",
               "This is ink-proof, a tool for conformance testing of Ink compilers and runtimes.", " ",
               "On the left you can see the output of a round of ink-proof testing.", " ",
@@ -244,6 +264,21 @@
                 Object.values(Data.statuses).map(s => m("", [s.symbol, "=", s.name])),
               ),
 
+          ];
+        }
+      };
+
+      const FocusBadges = {
+        view(vnode) {
+          return [
+            Data.programs.map(p => {
+              return [
+                m('.', m(BadgeView, {
+                  href: `/program/${p.name}`,
+                  name: `${p.name}.svg`,
+                })),
+              ];
+            }),
           ];
         }
       };
@@ -535,6 +570,12 @@
           "/help": {
             render(vnode) {
               return m(OverviewWithFocus, m(FocusHelp));
+            },
+          },
+
+          "/badges": {
+            render(vnode) {
+              return m(OverviewWithFocus, m(FocusBadges));
             },
           },
 
