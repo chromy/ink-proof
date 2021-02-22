@@ -7,13 +7,12 @@ import platform
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR = os.path.join(ROOT, 'deps', 'inklecate_v1.0.0')
+PATH = os.path.join(DIR, 'inklecate')
 if platform.system().lower() == "linux":
   MONO_PATH = shutil.which("mono")
-  PATH = os.path.join(DIR, 'inklecate.exe')
   ARGS = ["mono", PATH] + sys.argv[1:]
   os.execv(MONO_PATH, ARGS)
 else:
-  PATH = os.path.join(DIR, 'inklecate')
   ARGS = ["inklecate"] + sys.argv[1:]
   os.execv(PATH, ARGS)
   sleep(2)
