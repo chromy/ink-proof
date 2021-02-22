@@ -44,6 +44,20 @@ except ImportError:
 # only on the given platform
 
 DEPS = [
+    # Inklecate v1.0.0
+    ('deps/inklecate_v1.0.0.zip',
+     'https://github.com/inkle/ink/releases/download/v1.0.0/inklecate_mac.zip',
+     '44a1368fd55db706cc9eef45456674769b1cb47f',
+     'darwin'),
+    ('deps/inklecate_v1.0.0.zip',
+     'https://github.com/inkle/ink/releases/download/v1.0.0/inklecate_linux.zip',
+     'f8fb59af8c2daf253c0f0da0b6498468bd9cdb83',
+     'linux'),
+    ('deps/inklecate_v1.0.0.zip',
+     'https://github.com/inkle/ink/releases/download/v1.0.0/inklecate_windows.zip',
+     '497f41ef3059fe93672e0cade2739d56f5b4f1dc',
+     'windows'),
+
     # Inklecate v0.9.0
     ('deps/inklecate_v0.9.0.zip',
      'https://github.com/inkle/ink/releases/download/0.9.0/inklecate_mac.zip',

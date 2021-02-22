@@ -16,7 +16,7 @@ SEM = None
 DEFAULT_OUT_PATH = os.path.abspath("out")
 DEFAULT_TIMEOUT_S = 20
 DEFAULT_COMPILER = "inklecate_v0.9.0"
-DEFAULT_RUNTIME = "inklecate_runtime_v0.9.0+"
+DEFAULT_RUNTIME = "inklecate_runtime_v1.0.0"
 
 def serve(directory, port):
   import http.server
