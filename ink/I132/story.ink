@@ -1,10 +1,10 @@
 VAR a_divert_variable = -> a_divert
 
-{ a_divert_variable == -> a_divert }
-{ a_divert_variable != -> a_divert }
+{ (a_divert_variable == -> a_divert) + 0 }
+{ (a_divert_variable != -> a_divert) + 0 }
 
-{ a_divert_variable == -> another_divert }
-{ a_divert_variable != -> another_divert }
+{ (a_divert_variable == -> another_divert) + 0 }
+{ (a_divert_variable != -> another_divert) + 0 }
 
 === a_divert ===
     with some content
