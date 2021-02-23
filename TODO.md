@@ -1,9 +1,4 @@
 # Todo
-- Floating point precision test 2.33333333
-- bool test
-- whitespace issues
-- corece bool tests
-
 - Clean out logging
 - More help?
 - More readme?
@@ -29,6 +24,8 @@
 
 
 # Done
+- whitespace issues
+- Floating point precision test 2.33333333
 - Add favicon
 - show newline
 - Serve mode
@@ -77,5 +74,7 @@
 - vendor deps
 - github link
 - extend line to bottom of page
+- bool test
+- corece bool tests
 
 
