@@ -130,6 +130,11 @@ DEPS = [
      '9e5a41aa225db74dfefdb0b44e3699959b5ed7e4',
      'all'),
 
+    ('deps/diff.js',
+     'https://unpkg.com/diff@5.0.0/dist/diff.js',
+     'd9926f792723e44a7ddb6dfe0a98f4f2c7943fc0',
+     'all'),
+
 ]
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

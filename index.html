@@ -27,6 +27,7 @@
   <body>
     <main class="sans-serif vh-100 w-100"></main>
     <script src="mithril.min.js"></script>
+    <script src="diff.js"></script>
     <script>
       const Rollover = {
         current: null,
@@ -156,6 +157,27 @@
           return text === "" ? m('p', m("i.gray", isLoading ? "Loading" : "Empty file")) : m("pre.f6", {
             style: "white-space: pre-wrap; tab-size: 4;",
                 }, text ? text.split("\n").map(l => [l, m('span', {title: "newline", style: "user-select: none; color: #eaeaea;"}, "↵"), "\n"]) : "");
+        },
+      };
+
+      const DiffView = {
+        view(vnode) {
+          const expectedPath = vnode.attrs.expectedPath;
+          const actualPath = vnode.attrs.actualPath;
+          const expectedText = Files.get(expectedPath);
+          const actualText = Files.get(actualPath);
+          const isLoading = Files.isLoading(expectedPath) || Files.isLoading(actualPath);
+          if (isLoading) {
+            return m('p', m("i.gray", "Loading"));
+          } else {
+            const diff = Diff.diffChars(expectedText, actualText);
+            return m("pre.f6", {
+              style: "white-space: pre-wrap; tab-size: 4;",
+            }, diff.map(p => {
+                const c = p.added ? 'green' : p.removed ? 'red' : 'grey';
+                return m('span', {class: c}, p.value);
+            }));
+          }
         },
       };
 
@@ -342,6 +364,17 @@
           const resultIndex = vnode.attrs.resultIndex;
           const result = Data.results[resultIndex];
           const item = vnode.attrs.item;
+          if (item.kind === "diff") {
+            const expectedName = item.expectedName;
+            const actualName = item.actualName;
+            const expectedPath = result[expectedName];
+            const actualPath = result[actualName];
+            return m("p", item.humanName, ": " , m("span.code", m(DiffView, {
+              expectedPath,
+              actualPath,
+            })));
+          }
+
           const k = item.name;
           const v = result[k];
           const kind = resultItemKind(k, v);

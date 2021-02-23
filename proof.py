@@ -39,6 +39,20 @@ class SummaryItem(object):
             "humanName": self.human_name,
         }
 
+class SummaryDiff(object):
+    def __init__(self, expected_name, actual_name, human_name):
+        self.human_name = human_name
+        self.expected_name = expected_name
+        self.actual_name = actual_name
+
+    def describe(self):
+        return {
+            "kind": "diff",
+            "expectedName": self.expected_name,
+            "actualName": self.actual_name,
+            "humanName": self.human_name,
+        }
+
 class Status(object):
     def __init__(self, name, symbol, description, summary=None):
         self.name = name
@@ -65,7 +79,7 @@ SuccessStatus = Status(
 FailStatus = Status("FAIL", "❌", "Actual output does not match expected", [
     SummaryItem("outPath", "Actual output"),
     SummaryItem("expectedPath", "Expected output"),
-    SummaryItem("diffPath", "Diff"),
+    SummaryDiff("expectedPath", "outPath", "Diff"),
 ])
 
 ErrorCompilerDidNotOutputStatus = Status("COMPILER_NO_OUTPUT", "❌", "The compiler did not produce output", [
@@ -708,6 +722,7 @@ def main(root):
             shutil.rmtree(os.path.join(output_directory, 'ink'))
         shutil.copytree(os.path.join(root, 'ink'), output_ink_path)
 
+        shutil.copy(os.path.join(root, 'deps', 'diff.js'), output_directory)
         shutil.copy(os.path.join(root, 'deps', 'mithril.min.js'), output_directory)
         shutil.copy(os.path.join(root, 'deps', 'tachyons.min.css'), output_directory)
 
