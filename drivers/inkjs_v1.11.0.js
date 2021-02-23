@@ -43,9 +43,6 @@ process.stdin.on('end', () => {
       process.stdout.write(lastText);
     }
   }
-  if (!lastText.endsWith("\n")) {
-    process.stdout.write("\n");
-  }
 
 });
 
