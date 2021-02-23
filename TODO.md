@@ -1,4 +1,9 @@
 # Todo
+- Floating point precision test 2.33333333
+- bool test
+- whitespace issues
+- corece bool tests
+
 - Clean out logging
 - More help?
 - More readme?
