@@ -37,11 +37,14 @@
         data: {},
         examples: [],
         programs: [],
+        compilers: [],
+        runtimes: [],
         results: [],
         statuses: {},
         exampleByName: {},
         programByName: {},
         resultByProgramExample: {},
+        resultsByRuntimeCompiler: {},
 
         getResult(program, example) {
           if (this.resultByProgramExample[program.name] === undefined) {
@@ -64,10 +67,13 @@
             Data.results = result.results;
             Data.statuses = result.statuses;
             Data.metadata = result.metadata;
+            Data.runtimes = result.programs.filter(p => p.kind === 'Runtime');
+            Data.compilers = result.programs.filter(p => p.kind === 'Compiler');
 
             const exampleByName = {};
             const programByName = {};
             const resultByProgramExample = {};
+            const resultsByRuntimeCompiler = {};
             for (const example of result.examples) {
               exampleByName[example.name] = example;
             }
@@ -81,9 +87,27 @@
               }
               resultByProgramExample[r.program][r.example] = r;
             }
+
+            for (const r of Data.runtimes) {
+              resultsByRuntimeCompiler[r.name] = {};
+              for (const c of Data.compilers) {
+                resultsByRuntimeCompiler[r.name][c.name] = [];
+              }
+            }
+            for (const r of result.results) {
+              if (r.compiler) {
+                resultsByRuntimeCompiler[r.runtime][r.compiler].push(r);
+              } else {
+                for (const c of Data.compilers) {
+                  resultsByRuntimeCompiler[r.runtime][c.name].push(r);
+                }
+              }
+            }
+
             Data.exampleByName = exampleByName;
             Data.programByName = programByName;
             Data.resultByProgramExample = resultByProgramExample;
+            Data.resultsByRuntimeCompiler = resultsByRuntimeCompiler;
           });
         },
       };
@@ -211,13 +235,32 @@
           return [
             m('h1', program.kind, " ", program.name),
             m('.', m(BadgeView, {
-                href: `/program/${program.name}`,
+                href: href(`/program/${program.name}`),
                 name: `${program.name}.svg`,
             })),
             m("p", Data.results.filter(r => r.program === programName).map(r => {
               const status = Data.statuses[r.status];
               return m(m.route.Link, {
-                    href: `/result/${Data.results.indexOf(r)}`,
+                    href: href(`/result/${Data.results.indexOf(r)}`),
+                    class: 'link',
+                  }, status.symbol);
+            })),
+          ];
+        }
+      };
+
+      const FocusCombo = {
+        view(vnode) {
+          const compilerName = vnode.attrs.compilerName;
+          const compiler = Data.programByName[compilerName];
+          const runtimeName = vnode.attrs.runtimeName;
+          const runtime = Data.programByName[runtimeName];
+          return [
+            m('h1', compilerName, ' x ', runtimeName),
+            m("p", Data.results.filter(r => r.compiler === compilerName && r.runtime === runtimeName).map(r => {
+              const status = Data.statuses[r.status];
+              return m(m.route.Link, {
+                    href: href(`/result/${Data.results.indexOf(r)}`),
                     class: 'link',
                   }, status.symbol);
             })),
@@ -244,7 +287,7 @@
               Data.examples.map(e => {
                 return m("tr",
                   m("td.code", m(m.route.Link, {
-                    href: `/example/${e.name}`,
+                    href: href(`/example/${e.name}`),
                     class: 'link code db',
                   }, e.name)),
                   m("td", e.metadata.oneLineDescription, e.metadata.tags.map(t => {
@@ -262,12 +305,12 @@
           return [
             Data.programs.map(p => {
               return m('span.mr2', m(BadgeView, {
-                href: `/program/${p.name}`,
+                href: href(`/program/${p.name}`),
                 name: `${p.name}.svg`,
               }));
             }),
             m('', m(m.route.Link, {
-              href: `/badges`,
+              href: href(`/badges`),
               class: 'link f7',
             }, "badges")),
             m("p.mw6",
@@ -296,7 +339,7 @@
             Data.programs.map(p => {
               return [
                 m('.', m(BadgeView, {
-                  href: `/program/${p.name}`,
+                  href: href(`/program/${p.name}`),
                   name: `${p.name}.svg`,
                 })),
               ];
@@ -318,7 +361,7 @@
             );
           } else if (kind === "file") {
             return m("tr", m("td", k), m("td", m(m.route.Link, {
-              href: `/file/${v}`,
+              href: href(`/file/${v}`),
               class: 'link',
               }, v),
             ));
@@ -344,6 +387,28 @@
           return 'list';
         }
         return 'unknown';
+      }
+
+      function href(href, options) {
+        const path = m.parsePathname(href);
+        const params = {};
+
+        params["matrix"] = m.route.param("matrix");
+
+        for (const [k, v] of Object.entries(path.params)) {
+          params[k] = v;
+        }
+
+        for (const [k, v] of Object.entries(options || {})) {
+          params[k] = v;
+        }
+
+        for (const [k, v] of Object.entries(params)) {
+          if (v === undefined) {
+            delete params[k];
+          }
+        }
+        return m.buildPathname(path.path, params);
       }
 
       const ResultEverything = {
@@ -418,14 +483,14 @@
             m("h1",
 
                 m(m.route.Link, {
-                  href: `/program/${program.name}`,
+                  href: href(`/program/${program.name}`),
                   class: 'link',
                   }, program.name),
 
               " x ",
 
                 m(m.route.Link, {
-                  href: `/example/${example.name}`,
+                  href: href(`/example/${example.name}`),
                   class: 'link',
                   }, example.name),
               " ",
@@ -434,11 +499,9 @@
             m("h1", result.status, " ", m("span.f4.gray", status.description)),
 
             m(m.route.Link, {
-              href: m.buildPathname("/result/:resultIndex", showEverything ? {
+              href: href("/result/:resultIndex", {
                 resultIndex,
-              } : {
-                resultIndex,
-                showEverything: true,
+                showEverything: showEverything ? undefined : true,
               }),
               class: 'link',
             }, showEverything ? "Show what the test harness believes is relevant" : "Show all information from the test"),
@@ -452,16 +515,16 @@
           return m(".bb",
               m("span.f5.f4-l.black-80.pa3.ph4-l.baskerville", "ink-proof"),
               m(m.route.Link, {
-                href: `/help`,
+                href: href(`/help`),
                 class: 'f6 f5-l link bg-animate black-80 hover-bg-lightest-blue dib pa3 ph4-l small-caps' + (m.route.get() === "/help" ? " bg-lightest-blue" : ""),
               }, "help"), " ",
               m(m.route.Link, {
-                href: `/tests`,
+                href: href(`/tests`),
                 class: 'f6 f5-l link bg-animate black-80 hover-bg-lightest-blue dib pa3 ph4-l small-caps'
                 + (m.route.get() === "/tests" ? " bg-lightest-blue" : ""),
               }, "test cases"),
               m(m.route.Link, {
-                href: `/metadata`,
+                href: href(`/metadata`),
                 class: 'f6 f5-l link bg-animate black-80 hover-bg-lightest-blue dib pa3 ph4-l small-caps'
                 + (m.route.get() === "/metadata" ? " bg-lightest-blue" : ""),
               }, "metadata"),
@@ -469,9 +532,10 @@
         }
       }
 
-      const Overview = {
+      const ListOverview = {
         view() {
           return [
+            m(OverviewToggle),
             m("table.center",
               m("tr", m("th"), m("th"), Data.programs.map(p => m("th", {
                     class: m.route.param("programName") === p.name
@@ -479,7 +543,7 @@
                     : "hover-bg-light-yellow",
                   },
                 m(m.route.Link, {
-                  href: `/program/${p.name}`,
+                  href: href(`/program/${p.name}`),
                   class: 'link db',
                   style: "max-width: 5rem;",
                   }, p.name.split("_").join("\n"))),
@@ -491,12 +555,12 @@
                     : "hover-bg-light-yellow",
                   },
                   m(m.route.Link, {
-                    href: `/example/${e.name}`,
+                    href: href(`/example/${e.name}`),
                     class: 'link code db',
                   }, e.name),
                 ),
                 m("td.tc", m(m.route.Link, {
-                  href: `/golden/${e.name}`,
+                  href: href(`/golden/${e.name}`),
                   class: 'link db',
                 }, "💛")),
                 Data.programs.map(p => {
@@ -513,7 +577,7 @@
                     ? "bg-light-yellow"
                     : "hover-bg-light-yellow",
                   }, m(m.route.Link, {
-                    href: `/result/${index}`,
+                    href: href(`/result/${index}`),
                     class: 'link db',
                   }, status.symbol));
                 }),
@@ -524,13 +588,76 @@
          }
       };
 
+      const OverviewToggle = {
+        view() {
+          const isMatrix = m.route.param("matrix");
+          return m(m.route.Link, {
+            href: href(m.route.get(), {
+              "matrix": isMatrix ? undefined : true,
+            }),
+            title: isMatrix ? "Show results as list" : "Show results as matrix",
+          }, isMatrix ? 'L' : 'M');
+        }
+      };
+
+      const MatrixOverview = {
+        view() {
+          return [
+            m(OverviewToggle),
+            m('table',
+              m('tr',
+                m('th'),
+                Data.compilers.map(c => m('th', {
+                  class: m.route.param("programName") === c.name
+                    ? "bg-light-yellow"
+                    : "hover-bg-light-yellow",
+                }, m(m.route.Link, {
+                  href: href(`/program/${c.name}`),
+                  class: 'link db',
+                  style: "max-width: 5rem;",
+                }, c.name.split("_").join("\n")))),
+              ),
+              Data.runtimes.map(r => m('tr',
+
+                m('th', {
+                  class: m.route.param("programName") === r.name
+                    ? "bg-light-yellow"
+                    : "hover-bg-light-yellow",
+                }, m(m.route.Link, {
+                  href: href(`/program/${r.name}`),
+                  class: 'link db',
+                  style: "max-width: 5rem;",
+                }, r.name.split("_").join("\n"))),
+
+                Data.compilers.map(c => {
+                  const rs = Data.resultsByRuntimeCompiler[r.name][c.name];
+                  const total = rs.length;
+                  const successes = rs.filter(r => r.status === "SUCCESS").length;
+                  const programName = m.route.param("programName");
+                  const compilerName = m.route.param("compilerName");
+                  const runtimeName = m.route.param("runtimeName");
+                  const isHl = programName === r.name || programName === c.name || (runtimeName === r.name && compilerName === c.name);
+                  return m('td', {
+                  class: isHl
+                    ? "bg-light-yellow"
+                    : "hover-bg-light-yellow",
+                  }, m(m.route.Link, {
+                    href: href(`/combo/${c.name}/${r.name}`),
+                  }, `${successes}/${total}`));
+                }),
+              )),
+            ),
+          ];
+         }
+      };
+
       const OverviewWithFocus = {
         view(vnode) {
           return [
             m(".overflow-y-scroll-ns.vh-100-ns", { style: "grid-area: overview;"} ,
-              m(".pa3", m(Overview)),
+              m(".pa3", m(m.route.param("matrix") ? MatrixOverview : ListOverview)),
             ),
-            m(".bl", { style: "grid-area: nav;"}, m(Nav)),
+            m(".bl", { style: "grid-area: nav;" }, m(Nav)),
             m(".bl.overflow-y-scroll-ns", { style: "grid-area: focus;"}, m(".pa3", vnode.children)),
           ];
         },
@@ -581,6 +708,23 @@
             render(vnode) {
               return m(OverviewWithFocus, m(FocusProgram, {
                 programName: vnode.attrs.programName,
+              }));
+            },
+          },
+
+          "/combo/:compilerName/:runtimeName": {
+            onmatch(args, requestedPath, route) {
+              const badCompiler = Data.programByName[args.compilerName] === undefined;
+              const badRuntime = Data.programByName[args.runtimeName] === undefined;
+              if (badCompiler || badRuntime) {
+                m.route.set("/");
+              }
+            },
+
+            render(vnode) {
+              return m(OverviewWithFocus, m(FocusCombo, {
+                compilerName: vnode.attrs.compilerName,
+                runtimeName: vnode.attrs.runtimeName,
               }));
             },
           },

@@ -109,8 +109,9 @@ InfraErrorStatus = Status("INFRA_ERROR", "🏗️", "Infra error", [
 ])
 
 class PlayerResult(object):
-    def __init__(self, program, example, player_job, diff_job, compile_job=None):
+    def __init__(self, program, example, player_job, diff_job, compile_job=None, compiler=None):
         self.program = program
+        self.compiler = compiler
         self.example = example
         self.player_job = player_job
         self.diff_job = diff_job
@@ -145,6 +146,7 @@ class PlayerResult(object):
         description = {
             "status": self.status.name,
             "program": self.program.name,
+            "runtime": self.program.name,
             "example": self.example.name,
             "diffPath": diff_path,
             "outPath": out_path,
@@ -162,6 +164,8 @@ class PlayerResult(object):
             description["compileErrPath"] = compile_stderr_path
             description["compileBytecodePath"] = compile_bytecode_path
             description["compileExitcode"] = self.compile_job.return_code
+        if self.compiler:
+            description["compiler"] = self.compiler.name
 
         if self.infra_error:
             description["infraError"] = str(self.infra_error)
@@ -697,7 +701,7 @@ def main(root):
                 job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
                 jobs.append(job_a)
                 jobs.append(job_b)
-                results.append(PlayerResult(runtime, example, job_a, job_b, compile_job=job_z))
+                results.append(PlayerResult(runtime, example, job_a, job_b, compile_job=job_z, compiler=reference_compiler))
 
         for j, example in enumerate(bytecode_examples):
             for i, player in enumerate(selected_runtimes):
@@ -706,7 +710,7 @@ def main(root):
                 job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
                 jobs.append(job_a)
                 jobs.append(job_b)
-                results.append(PlayerResult(player, example, job_a, job_b))
+                results.append(PlayerResult(player, example, job_a, job_b, compiler=None))
         asyncio.run(run_jobs(jobs, results))
 
         shutil.copyfile(os.path.join(root, 'index.html'), os.path.join(output_directory, 'index.html'))
