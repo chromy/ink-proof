@@ -671,46 +671,66 @@ def main(root):
         print(f"Example {example.name} invalid. Missing file '{e}'", file=sys.stderr)
         exit(1)
 
+    pairs = []
+    for c in selected_compilers:
+        for r in selected_runtimes:
+            pairs.append((c, r))
+
+    hand_compiler = CompilerDriver("bytecode", "")
+    selected_compilers.append(hand_compiler)
+    selected_drivers.append(hand_compiler)
+
     with contextlib.ExitStack() as context_stack:
         # output_directory = context_stack.enter_context(tempfile.TemporaryDirectory())
         output_directory = ensure_dir('out')
 
-
         jobs = []
         results = []
 
-        refrence_compile_job = {}
-        for j, example in enumerate(ink_examples):
-            for i, compiler in enumerate(selected_compilers):
+        f = lambda pair: pair[0]
+        for compiler, g in itertools.groupby(sorted(pairs), key=f):
+            runtimes = [runtime for _, runtime in g]
+            for example in ink_examples:
                 job_a = compile_job(compiler, example, output_directory, args.timeout)
-                job_b = compile_player_job(compiler, reference_runtime, example, job_a.out_path, output_directory, args.timeout, deps=[job_a])
-                diff_path = os.path.join(output_directory, make_name(compiler, reference_runtime, example, suffix='_diff.txt'))
-                job_c = diff_job(example.transcript_path, job_b.stdout_path, diff_path, deps=[job_b])
-                jobs.extend([job_a, job_b, job_c])
+                jobs.append(job_a)
+                for runtime in runtimes:
+                    job_b = compile_player_job(compiler, runtime, example, job_a.out_path, output_directory, args.timeout, deps=[job_a])
+                    diff_path = os.path.join(output_directory, make_name(compiler, runtime, example, suffix='_diff.txt'))
+                    job_c = diff_job(example.transcript_path, job_b.stdout_path, diff_path, deps=[job_b])
+                    jobs.extend([job_b, job_c])
+                    results.append(CompilerResult(compiler, runtime, example, job_a, job_b, job_c))
 
-                results.append(CompilerResult(compiler, reference_runtime, example, job_a, job_b, job_c))
-                if compiler == reference_compiler:
-                    refrence_compile_job[example] = job_a
-
-            for i, runtime in enumerate(selected_runtimes):
-                job_z = refrence_compile_job[example]
-                bytecode_path = job_z.out_path
-                input_path = example.input_path
-                job_a = player2_job(runtime, example, bytecode_path, input_path, output_directory, args.timeout, deps=[job_z])
+        for runtime in {runtime for _, runtime in pairs}:
+            for example in bytecode_examples:
+                job_a = player_job(runtime, example, output_directory, args.timeout)
                 diff_path = os.path.join(output_directory, make_name(runtime, example, suffix='_diff.txt'))
                 job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
-                jobs.append(job_a)
-                jobs.append(job_b)
-                results.append(PlayerResult(runtime, example, job_a, job_b, compile_job=job_z, compiler=reference_compiler))
+                jobs.extend([job_a, job_b])
+                results.append(PlayerResult(runtime, example, job_a, job_b, compiler=hand_compiler))
 
-        for j, example in enumerate(bytecode_examples):
-            for i, player in enumerate(selected_runtimes):
-                job_a = player_job(player, example, output_directory, args.timeout)
-                diff_path = os.path.join(output_directory, make_name(player, example, suffix='_diff.txt'))
-                job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
-                jobs.append(job_a)
-                jobs.append(job_b)
-                results.append(PlayerResult(player, example, job_a, job_b, compiler=None))
+        #for example in ink_examples:
+            #for compiler in selected_compilers:
+            #    job_a = compile_job(compiler, example, output_directory, args.timeout)
+            #    job_b = compile_player_job(compiler, reference_runtime, example, job_a.out_path, output_directory, args.timeout, deps=[job_a])
+            #    diff_path = os.path.join(output_directory, make_name(compiler, reference_runtime, example, suffix='_diff.txt'))
+            #    job_c = diff_job(example.transcript_path, job_b.stdout_path, diff_path, deps=[job_b])
+            #    jobs.extend([job_a, job_b, job_c])
+
+            #    results.append(CompilerResult(compiler, reference_runtime, example, job_a, job_b, job_c))
+            #    if compiler == reference_compiler:
+            #        refrence_compile_job[example] = job_a
+
+            #for runtime in selected_runtimes:
+            #    job_z = refrence_compile_job[example]
+            #    bytecode_path = job_z.out_path
+            #    input_path = example.input_path
+            #    job_a = player2_job(runtime, example, bytecode_path, input_path, output_directory, args.timeout, deps=[job_z])
+            #    diff_path = os.path.join(output_directory, make_name(runtime, example, suffix='_diff.txt'))
+            #    job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
+            #    jobs.append(job_a)
+            #    jobs.append(job_b)
+            #    results.append(PlayerResult(runtime, example, job_a, job_b, compile_job=job_z, compiler=reference_compiler))
+
         asyncio.run(run_jobs(jobs, results))
 
         shutil.copyfile(os.path.join(root, 'index.html'), os.path.join(output_directory, 'index.html'))
