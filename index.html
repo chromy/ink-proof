@@ -607,7 +607,7 @@
           }
 
           return [
-            m(OverviewToggle),
+            m(OverviewMenu),
             m("table.center",
 
               m('tr',
@@ -693,17 +693,17 @@
          }
       };
 
-      const OverviewToggle = {
+      const OverviewMenu = {
         view() {
           const isMatrix = m.route.param("matrix");
-          return m('', [
+          return m('.pa3', [
 
             m(m.route.Link, {
               href: href(m.route.get(), {
                 "matrix": true,
               }),
               title: "Show results as matrix",
-            }, 'Matrix'),
+            }, m('span.pa3', 'Matrix')),
 
             m(m.route.Link, {
               href: href(m.route.get(), {
@@ -711,7 +711,7 @@
                 "overviewFilter": "bytecode",
               }),
               title: "Show bytecode test results",
-            }, 'Bytecode'),
+            }, m('span.pa3', 'Bytecode')),
 
             m(m.route.Link, {
               href: href(m.route.get(), {
@@ -719,7 +719,7 @@
                 "overviewFilter": "ink",
               }),
               title: "Show ink test results",
-            }, 'Ink'),
+            }, m('span.pa3', 'Ink')),
 
           ]);
         }
@@ -741,7 +741,7 @@
       const MatrixOverview = {
         view() {
           return [
-            m(OverviewToggle),
+            m(OverviewMenu),
             m('table',
               m('tr',
                 m('th'),
