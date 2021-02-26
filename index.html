@@ -440,6 +440,7 @@
         const params = {};
 
         params["matrix"] = m.route.param("matrix");
+        params["overviewFilter"] = m.route.param("overviewFilter");
 
         for (const [k, v] of Object.entries(path.params)) {
           params[k] = v;
@@ -584,6 +585,27 @@
 
       const ListOverview = {
         view() {
+          let examples = Data.examples;
+          let pairs = Data.pairs;
+          const isBytecode = m.route.param("overviewFilter") === "bytecode";
+          const isInk = m.route.param("overviewFilter") === "ink";
+          if (isBytecode) {
+            examples = examples.filter(e => e.name.startsWith("B"));
+            pairs = pairs.filter(pair => {
+              const [c, _] = pair;
+              const bytecode = c.name.startsWith("bytecode");
+              return bytecode;
+            });
+          }
+          if (isInk) {
+            examples = examples.filter(e => e.name.startsWith("I"));
+            pairs = pairs.filter(pair => {
+              const [c, _] = pair;
+              const bytecode = c.name.startsWith("bytecode");
+              return !bytecode;
+            });
+          }
+
           return [
             m(OverviewToggle),
             m("table.center",
@@ -591,7 +613,7 @@
               m('tr',
                 m('td'),
                 m('td'),
-                Data.pairs.map(pair => {
+                  pairs.map(pair => {
                   const [c, r] = pair;
                   const isActiveCompiler = m.route.param("compilerName") === c.name;
                   const isActiveRuntime = m.route.param("runtimeName") === r.name;
@@ -611,7 +633,7 @@
               m('tr',
                 m('td'),
                 m('td'),
-                Data.pairs.map(pair => {
+                pairs.map(pair => {
                   const [c, r] = pair;
                   const isActiveCompiler = m.route.param("compilerName") === c.name;
                   const isActiveRuntime = m.route.param("runtimeName") === r.name;
@@ -628,7 +650,7 @@
                 }),
               ),
 
-              Data.examples.map(e => {
+              examples.map(e => {
                 return m("tr",
 
                   m(TableHeader, {
@@ -642,7 +664,7 @@
                     href: href(`/golden/${e.name}`),
                     class: 'link db',
                   }, "💛")),
-                  Data.pairs.map(p => {
+                  pairs.map(p => {
                     const [c, r] = p;
                     const result = Data.extractResult(c, r, e);
                     if (result === null) {
@@ -674,12 +696,32 @@
       const OverviewToggle = {
         view() {
           const isMatrix = m.route.param("matrix");
-          return m(m.route.Link, {
-            href: href(m.route.get(), {
-              "matrix": isMatrix ? undefined : true,
-            }),
-            title: isMatrix ? "Show results as list" : "Show results as matrix",
-          }, isMatrix ? 'L' : 'M');
+          return m('', [
+
+            m(m.route.Link, {
+              href: href(m.route.get(), {
+                "matrix": true,
+              }),
+              title: "Show results as matrix",
+            }, 'Matrix'),
+
+            m(m.route.Link, {
+              href: href(m.route.get(), {
+                "matrix": undefined,
+                "overviewFilter": "bytecode",
+              }),
+              title: "Show bytecode test results",
+            }, 'Bytecode'),
+
+            m(m.route.Link, {
+              href: href(m.route.get(), {
+                "matrix": undefined,
+                "overviewFilter": "ink",
+              }),
+              title: "Show ink test results",
+            }, 'Ink'),
+
+          ]);
         }
       };
 
@@ -747,7 +789,7 @@
       const OverviewWithFocus = {
         view(vnode) {
           return [
-            m(".overflow-y-scroll-ns.vh-100-ns", { style: "grid-area: overview;"} ,
+            m(".overflow-y-scroll-ns.vh-100-ns.mw7", { style: "grid-area: overview;"} ,
               m(".pa3", m(m.route.param("matrix") ? MatrixOverview : ListOverview)),
             ),
             m(".bl", { style: "grid-area: nav;" }, m(Nav)),
