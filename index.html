@@ -439,8 +439,7 @@
         const path = m.parsePathname(href);
         const params = {};
 
-        params["matrix"] = m.route.param("matrix");
-        params["overviewFilter"] = m.route.param("overviewFilter");
+        params["overview"] = m.route.param("overview");
 
         for (const [k, v] of Object.entries(path.params)) {
           params[k] = v;
@@ -587,8 +586,8 @@
         view() {
           let examples = Data.examples;
           let pairs = Data.pairs;
-          const isBytecode = m.route.param("overviewFilter") === "bytecode";
-          const isInk = m.route.param("overviewFilter") === "ink";
+          const isBytecode = m.route.param("overview") === "bytecode";
+          const isInk = m.route.param("overview") === "ink";
           if (isBytecode) {
             examples = examples.filter(e => e.name.startsWith("B"));
             pairs = pairs.filter(pair => {
@@ -611,9 +610,8 @@
             m("table.center",
 
               m('tr',
-                m('td'),
-                m('td'),
-                  pairs.map(pair => {
+                m('td[colspan=2].f6.tc', 'Compiler'),
+                pairs.map(pair => {
                   const [c, r] = pair;
                   const isActiveCompiler = m.route.param("compilerName") === c.name;
                   const isActiveRuntime = m.route.param("runtimeName") === r.name;
@@ -631,8 +629,7 @@
               ),
 
               m('tr',
-                m('td'),
-                m('td'),
+                m('td[colspan=2].f6.tc', 'Runtime'),
                 pairs.map(pair => {
                   const [c, r] = pair;
                   const isActiveCompiler = m.route.param("compilerName") === c.name;
@@ -695,31 +692,28 @@
 
       const OverviewMenu = {
         view() {
-          const isMatrix = m.route.param("matrix");
           return m('.pa3', [
 
             m(m.route.Link, {
               href: href(m.route.get(), {
-                "matrix": true,
+                "overview": undefined,
               }),
               title: "Show results as matrix",
             }, m('span.pa3', 'Matrix')),
 
             m(m.route.Link, {
               href: href(m.route.get(), {
-                "matrix": undefined,
-                "overviewFilter": "bytecode",
+                "overview": "bytecode",
               }),
               title: "Show bytecode test results",
-            }, m('span.pa3', 'Bytecode')),
+            }, m('span.pa3', 'Bytecode tests')),
 
             m(m.route.Link, {
               href: href(m.route.get(), {
-                "matrix": undefined,
-                "overviewFilter": "ink",
+                "overview": "ink",
               }),
               title: "Show ink test results",
-            }, m('span.pa3', 'Ink')),
+            }, m('span.pa3', 'Ink tests')),
 
           ]);
         }
@@ -790,7 +784,7 @@
         view(vnode) {
           return [
             m(".overflow-y-scroll-ns.vh-100-ns.mw7", { style: "grid-area: overview;"} ,
-              m(".pa3", m(m.route.param("matrix") ? MatrixOverview : ListOverview)),
+              m(".pa3", m(m.route.param("overview") ? ListOverview : MatrixOverview)),
             ),
             m(".bl", { style: "grid-area: nav;" }, m(Nav)),
             m(".bl.overflow-y-scroll-ns", { style: "grid-area: focus;"}, m(".pa3", vnode.children)),
