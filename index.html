@@ -281,7 +281,7 @@
           const program = Data.programByName[programName];
           return [
             m('h1', program.kind, " ", program.name),
-            m('.', m(BadgeView, {
+            !program.name.startsWith("bytecode") && m('.', m(BadgeView, {
                 href: href(`/program/${program.name}`),
                 name: `${program.name}.svg`,
             })),
@@ -352,7 +352,8 @@
       const FocusHelp = {
         view(vnode) {
           return [
-            Data.programs.map(p => {
+            // TODO(hjd): remove filter
+            Data.programs.filter(p => !p.name.startsWith("bytecode")).map(p => {
               return m('span.mr2', m(BadgeView, {
                 href: href(`/program/${p.name}`),
                 name: `${p.name}.svg`,
@@ -385,7 +386,8 @@
       const FocusBadges = {
         view(vnode) {
           return [
-            Data.programs.map(p => {
+            // TODO(hjd): remove filter
+            Data.programs.filter(p => !p.name.startsWith("bytecode")).map(p => {
               return [
                 m('.', m(BadgeView, {
                   href: href(`/program/${p.name}`),
