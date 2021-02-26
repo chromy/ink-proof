@@ -29,6 +29,7 @@
     <script src="mithril.min.js"></script>
     <script src="diff.js"></script>
     <script>
+      const Colors =  ["#a5002666", "#d7302766", "#f46d4366", "#fdae6166", "#fee08b66", "#ffffbf66", "#d9ef8b66", "#a6d96a66", "#66bd6366", "#1a985066", "#00683766"];
       const Rollover = {
         current: null,
       };
@@ -766,7 +767,9 @@
                   const compilerName = m.route.param("compilerName");
                   const runtimeName = m.route.param("runtimeName");
                   const isHl = programName === r.name || programName === c.name || (runtimeName === r.name && compilerName === c.name);
+                  const color = Colors[Math.floor((successes / total) * (Colors.length-1))];
                   return m('td.tc', {
+                    style: `background-color: ${color};`,
                     class: isHl
                      ? "bg-light-yellow"
                      : "hover-bg-light-yellow",
