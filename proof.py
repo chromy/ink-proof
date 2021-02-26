@@ -15,8 +15,6 @@ SEM = None
 
 DEFAULT_OUT_PATH = os.path.abspath("out")
 DEFAULT_TIMEOUT_S = 20
-DEFAULT_COMPILER = "inklecate_v0.9.0"
-DEFAULT_RUNTIME = "inklecate_runtime_v1.0.0"
 
 def serve(directory, port):
   import http.server
@@ -606,20 +604,20 @@ def main(root):
     parser.add_argument('--out', default=DEFAULT_OUT_PATH, help=f'output directory (default: {DEFAULT_OUT_PATH})')
     parser.add_argument('--list-drivers', action='store_true', help='list found compilers and runtimes')
     parser.add_argument('--timeout', default=DEFAULT_TIMEOUT_S, type=int, help=f'timeout for subprocesses (default: {DEFAULT_TIMEOUT_S}s)')
-    parser.add_argument('--reference-runtime', default=DEFAULT_RUNTIME, help=f'DEPRECATED set the reference runtime (default: {DEFAULT_RUNTIME})')
-    parser.add_argument('--reference-compiler', default=DEFAULT_COMPILER, help=f'DEPRECATED set the reference compiler (default: {DEFAULT_COMPILER})')
+    parser.add_argument('--reference-runtime', default=None, help=f'DEPRECATED')
+    parser.add_argument('--reference-compiler', default=None, help=f'DEPRECATED')
     parser.add_argument('--examples', default=".*", help=f'filter for examples (default: .*)')
     parser.add_argument('--serve', nargs='?', const=8000, type=int, help=f'after running serve the output directory at given port (default: 8000)')
     parser.add_argument('drivers', nargs='*', default=default_drivers, help=f'drivers to test (default: {" ".join(default_drivers)}) (available: {" ".join(available_runtimes+available_compilers)})')
     args = parser.parse_args()
 
-    selected_drivers = []
-    if args.reference_runtime not in available_runtimes:
-        runtimes = ", ".join(available_runtimes)
+    if args.reference_runtime is not None:
+        print("WARNING: --reference-runtime is deprecated and should no longer be passed. Ink-proof now tests all selected compilers against all selected runtimes. Passing --reference-runtime will become an error in future.")
         parser.error(f"Runtime '{args.reference_runtime}' unknown. Available runtimes: {runtimes}")
-    if args.reference_compiler not in available_compilers:
-        compilers = ", ".join(available_compilers)
-        parser.error(f"Compiler '{args.reference_compiler}' unknown. Available compilers: {compilers}")
+    if args.reference_compiler is not None:
+        print("WARNING: --reference-compiler is deprecated and should no longer be passed. Ink-proof now tests all selected compilers against all selected runtimes. Passing --reference-compiler will become an error in future.")
+
+    selected_drivers = []
     for name in args.drivers:
         if name not in available_runtimes and name not in available_compilers:
             drivers = ", ".join(available_drivers)
@@ -628,18 +626,13 @@ def main(root):
     if len(args.drivers) != len(set(args.drivers)):
         parser.error(f"Drivers \"{' '.join(args.drivers)}\" contains duplicates")
 
-    reference_runtime, = [d for d in player_drivers if d.name == args.reference_runtime]
-    reference_compiler, = [d for d in compiler_drivers if d.name == args.reference_compiler]
-
     if args.list_drivers:
         print("Available runtimes:")
         for d in player_drivers:
-            suffix = " (reference runtime)" if d == reference_runtime else ""
-            print(f"\t{d.name}{suffix}")
+            print(f"\t{d.name}")
         print("Available compilers:")
         for d in compiler_drivers:
-            suffix = " (reference compiler)" if d == reference_compiler else ""
-            print(f"\t{d.name}{suffix}")
+            print(f"\t{d.name}")
         return 0
 
     selected_compilers = []
@@ -707,29 +700,6 @@ def main(root):
                 job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
                 jobs.extend([job_a, job_b])
                 results.append(PlayerResult(runtime, example, job_a, job_b, compiler=hand_compiler))
-
-        #for example in ink_examples:
-            #for compiler in selected_compilers:
-            #    job_a = compile_job(compiler, example, output_directory, args.timeout)
-            #    job_b = compile_player_job(compiler, reference_runtime, example, job_a.out_path, output_directory, args.timeout, deps=[job_a])
-            #    diff_path = os.path.join(output_directory, make_name(compiler, reference_runtime, example, suffix='_diff.txt'))
-            #    job_c = diff_job(example.transcript_path, job_b.stdout_path, diff_path, deps=[job_b])
-            #    jobs.extend([job_a, job_b, job_c])
-
-            #    results.append(CompilerResult(compiler, reference_runtime, example, job_a, job_b, job_c))
-            #    if compiler == reference_compiler:
-            #        refrence_compile_job[example] = job_a
-
-            #for runtime in selected_runtimes:
-            #    job_z = refrence_compile_job[example]
-            #    bytecode_path = job_z.out_path
-            #    input_path = example.input_path
-            #    job_a = player2_job(runtime, example, bytecode_path, input_path, output_directory, args.timeout, deps=[job_z])
-            #    diff_path = os.path.join(output_directory, make_name(runtime, example, suffix='_diff.txt'))
-            #    job_b = diff_job(example.transcript_path, job_a.stdout_path, diff_path, deps=[job_a])
-            #    jobs.append(job_a)
-            #    jobs.append(job_b)
-            #    results.append(PlayerResult(runtime, example, job_a, job_b, compile_job=job_z, compiler=reference_compiler))
 
         asyncio.run(run_jobs(jobs, results))
 
