@@ -227,7 +227,7 @@
           const isLoading = Files.isLoading(vnode.attrs.path);
           return text === "" ? m('p', m("i.gray", isLoading ? "Loading" : "Empty file")) : m("pre.f6", {
             style: "white-space: pre-wrap; tab-size: 4;",
-                }, text ? text.split("\n").map(l => [l, m('span', {title: "newline", style: "user-select: none; color: #eaeaea;"}, "↵"), "\n"]) : "");
+          }, text ? text.split("\n").map(l => [l, m('span', {title: "newline", style: "user-select: none; color: #eaeaea;"}, "↵"), "\n"]) : "");
         },
       };
 
@@ -288,9 +288,10 @@
             m("p", Data.results.filter(r => r.program === programName || r.compiler === programName || r.runtime === programName).map(r => {
               const status = Data.statuses[r.status];
               return m(m.route.Link, {
-                    href: href(`/result/${Data.results.indexOf(r)}`),
-                    class: 'link',
-                  }, status.symbol);
+                href: href(`/result/${Data.results.indexOf(r)}`),
+                class: 'link',
+                title: r.example,
+              }, status.symbol);
             })),
           ];
         }
@@ -309,6 +310,7 @@
               return m(m.route.Link, {
                     href: href(`/result/${Data.results.indexOf(r)}`),
                     class: 'link',
+                    title: r.example,
                   }, status.symbol);
             })),
           ];
