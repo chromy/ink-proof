@@ -366,8 +366,14 @@
             m("p.mw6",
               "This is ink-proof, a tool for conformance testing of Ink compilers and runtimes.", " ",
               "On the left you can see the output of a round of ink-proof testing.", " ",
-              "Each row is a test case and each column is a compiler or runtime.", " ",
-              "Try clicking on an item in the table for more detail on it.", " ",
+
+              m.route.param("overview") ? [
+                "Each row is a test case and each column is a compiler or runtime.", " ",
+                "Try clicking on an item in the table for more detail on it.", " ",
+              ] : [
+                "Each column is a compiler and each row is a runtime.", " ",
+                "Try clicking on an item in the table for more detail on it.", " ",
+              ],
             ),
             m("p.mw6",
               "For more information see the ",
