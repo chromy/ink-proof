@@ -227,7 +227,7 @@
           const isLoading = Files.isLoading(vnode.attrs.path);
           return text === "" ? m('p', m("i.gray", isLoading ? "Loading" : "Empty file")) : m("pre.f6", {
             style: "white-space: pre-wrap; tab-size: 4;",
-          }, text ? text.split("\n").map(l => [l, m('span', {title: "newline", style: "user-select: none; color: #eaeaea;"}, "↵"), "\n"]) : "");
+          }, text ? text.split("\n").flatMap(l => [m('span', {title: "newline", class: "moon-gray", style: "user-select: none"}, "↵"), "\n", l]).slice(2) : "");
         },
       };
 
@@ -245,8 +245,8 @@
             return m("pre.f6", {
               style: "white-space: pre-wrap; tab-size: 4;",
             }, diff.map(p => {
-                const c = p.added ? 'green' : p.removed ? 'red' : '';
-                return m('span', {class: c}, p.value);
+                const c = p.added ? 'bg-washed-green dark-green' : p.removed ? 'bg-washed-red dark-red' : '';
+                return p.value.split("\n").flatMap(l => [m('span', {title: "newline", class: c || "moon-gray", style: "user-select: none"}, "↵"), "\n", m('span', {class: c}, l)]).slice(2);
             }));
           }
         },
