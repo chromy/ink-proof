@@ -1,4 +1,5 @@
 # Todo
+- update to new inklecate versions
 - Clean out logging
 - More help?
 - More readme?
@@ -21,7 +22,6 @@
 - show elapsed time next to exitcode
 - investigate https://github.com/y-lohse/inkjs/blob/master/tests/specs/ink/Diverts.spec.js#L112
 - Replace execv + sleep on windows
-
 
 # Done
 - whitespace issues
