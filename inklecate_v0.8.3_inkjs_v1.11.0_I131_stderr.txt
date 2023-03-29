@@ -3,7 +3,9 @@
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 
 RangeError: Maximum call stack size exceeded
-    at q.GetTemporaryVariableWithName (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:50730)
+    at get currentThread [as currentThread] (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:48874)
+    at get callStack [as callStack] (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:51370)
+    at q.GetTemporaryVariableWithName (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:50737)
     at Proxy.GetRawVariableWithName (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:58323)
     at Proxy.GetVariableWithName (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:57496)
     at Proxy.ValueAtVariablePointer (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:58397)
@@ -11,5 +13,5 @@ RangeError: Maximum call stack size exceeded
     at Proxy.ValueAtVariablePointer (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:58397)
     at Proxy.GetVariableWithName (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:57558)
     at Proxy.ValueAtVariablePointer (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:58397)
-    at Proxy.GetVariableWithName (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:57558)
-    at Proxy.ValueAtVariablePointer (/home/runner/work/ink-proof/ink-proof/deps/inkjs_v1.11.0/dist/ink-es2015.js:1:58397)
+
+Node.js v18.15.0
