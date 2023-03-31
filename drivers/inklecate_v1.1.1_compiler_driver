@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import shutil
+import platform
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DIR = os.path.join(ROOT, 'deps', 'inklecate_v1.1.1')
+PATH = os.path.join(DIR, 'inklecate')
+ARGS = ["inklecate"] + sys.argv[1:]
+os.execv(PATH, ARGS)
+sleep(2)
