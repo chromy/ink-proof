@@ -593,7 +593,7 @@ def write_badges(results, output_directory):
         label = softwear_under_test.human_name
         name = softwear_under_test.name
         badge_path = os.path.join(output_directory, f'{name}.svg')
-        total = len(rs)
+        total = len([r for r in rs if r.status != IncompatibleVersionStatus])
         passed = len([r for r in rs if r.status is SuccessStatus])
         color = '#97ca00' if passed >= total * 0.9 else '#e05d44'
         with open(badge_path, 'w') as f:
