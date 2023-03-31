@@ -406,7 +406,7 @@ def find_all_player_drivers(root):
     files = os.listdir(folder)
     suffix = "_runtime_driver"
     names = [name for name in files if name.endswith(suffix)]
-    drivers = [PlayerDriver(name[:-len(suffix)], os.path.join(root, "drivers", name)) for name in names]
+    drivers = [PlayerDriver(name[:-len("_driver")], os.path.join(root, "drivers", name)) for name in names]
     return sorted(drivers)
 
 def find_all_complier_drivers(root):
@@ -604,7 +604,6 @@ def write_badges(results, output_directory):
       badge_path = os.path.join(output_directory, f'{name}.svg')
       total = len([r for r in rs if r.status != IncompatibleVersionStatus])
       passed = len([r for r in rs if r.status is SuccessStatus])
-      print(label, name, total, passed, badge_path)
       color = '#97ca00' if passed >= total * 0.9 else '#e05d44'
       with open(badge_path, 'w') as f:
           f.write(render_badge(label, f'{passed}/{total}', color))
@@ -632,6 +631,15 @@ def main(root):
     parser.add_argument('drivers', nargs='*', default=default_drivers, help=f'drivers to test (default: {" ".join(default_drivers)}) (available: {" ".join(available_runtimes+available_compilers)})')
     args = parser.parse_args()
 
+    if args.list_drivers:
+        print("Available runtimes:")
+        for d in player_drivers:
+            print(f"\t{d.name}")
+        print("Available compilers:")
+        for d in compiler_drivers:
+            print(f"\t{d.name}")
+        return 0
+
     if args.reference_runtime is not None:
         print("WARNING: --reference-runtime is deprecated and should no longer be passed. Ink-proof now tests all selected compilers against all selected runtimes. Passing --reference-runtime will become an error in future.")
         parser.error(f"Runtime '{args.reference_runtime}' unknown. Available runtimes: {runtimes}")
@@ -646,15 +654,6 @@ def main(root):
         selected_drivers.append(drivers_by_name[name])
     if len(args.drivers) != len(set(args.drivers)):
         parser.error(f"Drivers \"{' '.join(args.drivers)}\" contains duplicates")
-
-    if args.list_drivers:
-        print("Available runtimes:")
-        for d in player_drivers:
-            print(f"\t{d.name}")
-        print("Available compilers:")
-        for d in compiler_drivers:
-            print(f"\t{d.name}")
-        return 0
 
     selected_compilers = []
     selected_runtimes = []
