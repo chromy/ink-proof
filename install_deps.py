@@ -44,6 +44,20 @@ except ImportError:
 # only on the given platform
 
 DEPS = [
+    # Inklecate v1.1.1
+    ('deps/inklecate_v1.1.1.zip',
+     'https://github.com/inkle/ink/releases/download/v1.1.1/inklecate_mac.zip',
+     'be9536b250c999a7be1e8a0a8edfd9f30b67e524',
+     'darwin'),
+    ('deps/inklecate_v1.1.1.zip',
+     'https://github.com/inkle/ink/releases/download/v1.1.1/inklecate_linux.zip',
+     '7a65ed10961ba55c5ec97ae0d5c8bddb9cea5139',
+     'linux'),
+    ('deps/inklecate_v1.1.1.zip',
+     'https://github.com/inkle/ink/releases/download/v1.1.1/inklecate_windows.zip',
+     'c291fdcab49497ea8def2bfcba489b1e4667dd63',
+     'windows'),
+
     # Inklecate v1.0.0
     ('deps/inklecate_v1.0.0.zip',
      'https://github.com/inkle/ink/releases/download/v1.0.0/inklecate_mac.zip',
@@ -100,6 +114,30 @@ DEPS = [
      'f97a77b6da4c2956603b877d27456d6172300656',
      'windows'),
 
+    # Inkjs 2.2.1
+    ('deps/inkjs_v2.2.1.tgz',
+     'https://registry.npmjs.org/inkjs/-/inkjs-2.2.1.tgz',
+     'f797e3b192ae7b324a51a56912a4e51c567f8d3c',
+     'all'),
+
+    # Inkjs 2.2.0
+    ('deps/inkjs_v2.2.0.tgz',
+     'https://registry.npmjs.org/inkjs/-/inkjs-2.2.0.tgz',
+     '28e5c7cd2458bfa2cca7fae79c012892c5e695ab',
+     'all'),
+
+    # Inkjs 2.1.0
+    ('deps/inkjs_v2.1.0.tgz',
+     'https://registry.npmjs.org/inkjs/-/inkjs-2.1.0.tgz',
+     '2e6d501e7477dcafdf200ec4d790e2d01d88a076',
+     'all'),
+
+    # Inkjs 2.0.0
+    ('deps/inkjs_v2.0.0.tgz',
+     'https://registry.npmjs.org/inkjs/-/inkjs-2.0.0.tgz',
+     'be9fb903bdf47fb90e1e585346c1eb185db869c3',
+     'all'),
+
     # Inkjs 1.11.0
     ('deps/inkjs_v1.11.0.tgz',
      'https://registry.npmjs.org/inkjs/-/inkjs-1.11.0.tgz',
@@ -130,6 +168,7 @@ DEPS = [
      '9e5a41aa225db74dfefdb0b44e3699959b5ed7e4',
      'all'),
 
+    # Diff
     ('deps/diff.js',
      'https://unpkg.com/diff@5.0.0/dist/diff.js',
      'd9926f792723e44a7ddb6dfe0a98f4f2c7943fc0',
