@@ -16,6 +16,13 @@ SEM = None
 DEFAULT_OUT_PATH = os.path.abspath("out")
 DEFAULT_TIMEOUT_S = 20
 
+
+def is_incompatible_version(path):
+  with open(path) as f:
+    s = f.read()
+    return "Version of ink used to build story was newer than the current version of the engine" in s
+
+
 def serve(directory, port):
   import http.server
   import socketserver
@@ -121,7 +128,7 @@ class PlayerResult(object):
         self.diff_job = diff_job
         self.infra_error = None
         self.compile_job = compile_job
-        self.softwear_under_test = self.program
+        self.software_under_test = [self.program]
 
     def settle(self):
         if self.player_job.timed_out:
@@ -177,6 +184,7 @@ class PlayerResult(object):
             description["infraError"] = str(self.infra_error)
         return description
 
+
 class CompilerResult(object):
     def __init__(self, compiler, runtime, example, compile_job, player_job, diff_job):
         self.compiler = compiler
@@ -186,7 +194,7 @@ class CompilerResult(object):
         self.player_job = player_job
         self.diff_job = diff_job
         self.infra_error = None
-        self.softwear_under_test = self.compiler
+        self.software_under_test = [self.compiler, self.runtime]
 
     def settle(self):
         if self.compile_job.timed_out:
@@ -203,10 +211,11 @@ class CompilerResult(object):
         elif self.player_job.infra_error:
             self.status = InfraErrorStatus
             self.infra_error = self.player_job.infra_error
-        elif self.player_job.return_code == -6:
-            self.status = IncompatibleVersionStatus
         elif self.player_job.return_code != 0:
-            self.status = ErrorRuntimeCrashedStatus
+            if is_incompatible_version(self.player_job.stderr_path):
+                self.status = IncompatibleVersionStatus
+            else:
+                self.status = ErrorRuntimeCrashedStatus
         elif self.diff_job.return_code == 1:
             # inklecate has 0 exit code on exception and emits BOM
             if os.path.getsize(self.player_job.stderr_path) > 5:
@@ -240,6 +249,7 @@ class CompilerResult(object):
             "errPath": err_path,
             "expectedPath": transcript_path,
             "compileCmdline": self.compile_job.nice_command(),
+            "playCmdline": self.player_job.nice_command(),
             "compileOutPath": compile_stdout_path,
             "compileErrPath": compile_stderr_path,
             "compileBytecodePath": compile_bytecode_path,
@@ -357,6 +367,7 @@ class PlayerDriver(object):
     def describe(self):
         return {
             "name": self.name,
+            "humanName": self.human_name,
             "kind": "Runtime",
         }
 
@@ -372,6 +383,7 @@ class CompilerDriver(object):
     def describe(self):
         return {
             "name": self.name,
+            "humanName": self.human_name,
             "kind": "Compiler",
         }
 
@@ -479,11 +491,6 @@ def player_job(player, bytecode, output_directory, timeout, deps=None):
     stdout_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stdout.txt'))
     return Job([sys.executable, player.path, bytecode.bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=bytecode.input_path, timeout=timeout, deps=deps)
 
-def player2_job(player, bytecode, bytecode_path, input_path, output_directory, timeout, deps=None):
-    stderr_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stderr.txt'))
-    stdout_path = os.path.join(output_directory, make_name(player, bytecode, suffix='_stdout.txt'))
-    return Job([sys.executable, player.path, bytecode_path], stderr_path=stderr_path, stdout_path=stdout_path, stdin_path=input_path, timeout=timeout, deps=deps)
-
 def compile_player_job(compiler, player, example, bytecode_path, output_directory, timeout, deps=None):
     stderr_path = os.path.join(output_directory, make_name(compiler, player, example, suffix='_stderr.txt'))
     stdout_path = os.path.join(output_directory, make_name(compiler, player, example, suffix='_stdout.txt'))
@@ -586,18 +593,21 @@ def render_badge(label, message, color):
  </g></svg>'''
 
 def write_badges(results, output_directory):
-    keyfunc = lambda r: r.softwear_under_test
-    results = sorted(results, key=keyfunc)
-    for softwear_under_test, rs in itertools.groupby(results, key=keyfunc):
-        rs = list(rs)
-        label = softwear_under_test.human_name
-        name = softwear_under_test.name
-        badge_path = os.path.join(output_directory, f'{name}.svg')
-        total = len([r for r in rs if r.status != IncompatibleVersionStatus])
-        passed = len([r for r in rs if r.status is SuccessStatus])
-        color = '#97ca00' if passed >= total * 0.9 else '#e05d44'
-        with open(badge_path, 'w') as f:
-            f.write(render_badge(label, f'{passed}/{total}', color))
+    all_software = set()
+    for r in results:
+      all_software.update(r.software_under_test)
+
+    for software in sorted(list(all_software)):
+      rs = [r for r in results if software in r.software_under_test]
+      label = software.human_name
+      name = software.name
+      badge_path = os.path.join(output_directory, f'{name}.svg')
+      total = len([r for r in rs if r.status != IncompatibleVersionStatus])
+      passed = len([r for r in rs if r.status is SuccessStatus])
+      print(label, name, total, passed, badge_path)
+      color = '#97ca00' if passed >= total * 0.9 else '#e05d44'
+      with open(badge_path, 'w') as f:
+          f.write(render_badge(label, f'{passed}/{total}', color))
 
 def main(root):
     bytecode_examples = find_all_bytecode_examples(root)
@@ -680,9 +690,10 @@ def main(root):
         for r in selected_runtimes:
             pairs.append((c, r))
 
-    hand_compiler = CompilerDriver("bytecode", "")
-    selected_compilers.append(hand_compiler)
-    selected_drivers.append(hand_compiler)
+    if bytecode_examples:
+      hand_compiler = CompilerDriver("bytecode", "")
+      selected_compilers.append(hand_compiler)
+      selected_drivers.append(hand_compiler)
 
     with contextlib.ExitStack() as context_stack:
         # output_directory = context_stack.enter_context(tempfile.TemporaryDirectory())
