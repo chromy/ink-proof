@@ -1,5 +1,4 @@
 # Todo
-- update to new inklecate versions
 - Clean out logging
 - More help?
 - More readme?
@@ -24,6 +23,7 @@
 - Replace execv + sleep on windows
 
 # Done
+- update to new inklecate versions
 - whitespace issues
 - Floating point precision test 2.33333333
 - Add favicon
