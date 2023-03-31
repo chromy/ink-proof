@@ -1,7 +1,7 @@
 ﻿
 Unhandled Exception:
 System.Exception: The requested operation caused a stack overflow. (Internal story path: Start.2) ---> System.StackOverflowException: The requested operation caused a stack overflow.
-  at System.String.GetHashCode () <0x407035e0 + 0x00004> in <71d8ad678db34313b7f718a414dfcb25>:0 
+  at System.String.GetHashCode () <0x406655e0 + 0x00004> in <71d8ad678db34313b7f718a414dfcb25>:0 
   at System.Collections.Generic.GenericEqualityComparer`1[T].GetHashCode (T obj) [0x0000a] in <71d8ad678db34313b7f718a414dfcb25>:0 
   at System.Collections.Generic.Dictionary`2[TKey,TValue].FindEntry (TKey key) [0x00016] in <71d8ad678db34313b7f718a414dfcb25>:0 
   at System.Collections.Generic.Dictionary`2[TKey,TValue].TryGetValue (TKey key, TValue& value) [0x00000] in <71d8ad678db34313b7f718a414dfcb25>:0 
@@ -1004,7 +1004,7 @@ System.Exception: The requested operation caused a stack overflow. (Internal sto
   at Ink.CommandLineTool..ctor (System.String[] args) [0x004c1] in <9ee7cbbfbba043e0bb8517c387cf7d74>:0 
   at Ink.CommandLineTool.Main (System.String[] args) [0x00000] in <9ee7cbbfbba043e0bb8517c387cf7d74>:0 
 [ERROR] FATAL UNHANDLED EXCEPTION: System.Exception: The requested operation caused a stack overflow. (Internal story path: Start.2) ---> System.StackOverflowException: The requested operation caused a stack overflow.
-  at System.String.GetHashCode () <0x407035e0 + 0x00004> in <71d8ad678db34313b7f718a414dfcb25>:0 
+  at System.String.GetHashCode () <0x406655e0 + 0x00004> in <71d8ad678db34313b7f718a414dfcb25>:0 
   at System.Collections.Generic.GenericEqualityComparer`1[T].GetHashCode (T obj) [0x0000a] in <71d8ad678db34313b7f718a414dfcb25>:0 
   at System.Collections.Generic.Dictionary`2[TKey,TValue].FindEntry (TKey key) [0x00016] in <71d8ad678db34313b7f718a414dfcb25>:0 
   at System.Collections.Generic.Dictionary`2[TKey,TValue].TryGetValue (TKey key, TValue& value) [0x00000] in <71d8ad678db34313b7f718a414dfcb25>:0 
