@@ -96,6 +96,12 @@ ErrorCompilerCrashedStatus = Status("COMPILER_CRASHED", "🔥", "The compiler cr
     SummaryItem("compileErrPath", "stderr"),
 ])
 
+IncompatibleVersionStatus = Status("INCOMPATIBLE_VERSION", "🫥", "The runtime does not understand this bytecode version.", [
+    SummaryItem("exitcode", "Exit code"),
+    SummaryItem("outPath", "stdout"),
+    SummaryItem("errPath", "stderr")
+])
+
 TimeoutStatus = Status("RUNTIME_TIMEOUT", "⌛", "The runtime timed out", [
     SummaryItem("exitcode", "Exit code"),
     SummaryItem("outPath", "stdout"),
@@ -123,6 +129,8 @@ class PlayerResult(object):
         elif self.player_job.infra_error:
             self.status = InfraErrorStatus
             self.infra_error = self.player_job.infra_error
+        elif self.player_job.return_code == -6:
+            self.status = IncompatibleVersionStatus
         elif self.player_job.return_code != 0:
             self.status = ErrorRuntimeCrashedStatus
         elif self.diff_job.return_code == 1:
@@ -195,6 +203,8 @@ class CompilerResult(object):
         elif self.player_job.infra_error:
             self.status = InfraErrorStatus
             self.infra_error = self.player_job.infra_error
+        elif self.player_job.return_code == -6:
+            self.status = IncompatibleVersionStatus
         elif self.player_job.return_code != 0:
             self.status = ErrorRuntimeCrashedStatus
         elif self.diff_job.return_code == 1:
@@ -524,6 +534,7 @@ def write_json(fout, drivers, examples, results):
         ErrorCompilerDidNotOutputStatus,
         ErrorRuntimeCrashedStatus,
         ErrorCompilerCrashedStatus,
+        IncompatibleVersionStatus,
         TimeoutStatus,
         InfraErrorStatus,
     ]}

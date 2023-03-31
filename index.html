@@ -771,7 +771,7 @@
 
                 Data.compilers.map(c => {
                   const rs = Data.resultsByRuntimeCompiler[r.name][c.name];
-                  const total = rs.length;
+                  const total = rs.filter(r => r.status !== "INCOMPATIBLE_VERSION").length;
                   const successes = rs.filter(r => r.status === "SUCCESS").length;
                   const programName = m.route.param("programName");
                   const compilerName = m.route.param("compilerName");
