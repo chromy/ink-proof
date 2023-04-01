@@ -193,6 +193,17 @@
         }
       };
 
+      const BadgeCode = {
+        view(vnode) {
+          const name = vnode.attrs.name;
+          const href = vnode.attrs.href;
+          const origin = location.origin;
+          const resultsLink = `${origin}/${m.route.prefix}${href}`;
+          const imgLink = `${origin}/${name}`;
+          return m('code', `<a href="${resultsLink}"><img src="${imgLink}"/></a>`);
+        }
+      };
+
       const FocusExample = {
         view(vnode) {
           const example = Data.exampleByName[vnode.attrs.exampleName];
@@ -396,6 +407,10 @@
             Data.programs.filter(p => !p.name.startsWith("bytecode")).map(p => {
               return [
                 m('.', m(BadgeView, {
+                  href: href(`/program/${p.name}`),
+                  name: `${p.name}.svg`,
+                })),
+                m('.pa3', m(BadgeCode, {
                   href: href(`/program/${p.name}`),
                   name: `${p.name}.svg`,
                 })),
