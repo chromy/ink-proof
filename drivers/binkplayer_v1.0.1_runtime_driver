@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import shutil
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PATH = os.path.join(ROOT, 'deps', 'binkplayer_v1.0.1', 'binkplayer')
+ARGS = ["binkplayer"] + sys.argv[1:]
+os.execv(PATH, ARGS)
+sleep(2)
