@@ -174,6 +174,20 @@ DEPS = [
      'd9926f792723e44a7ddb6dfe0a98f4f2c7943fc0',
      'all'),
 
+    # Binkplayer v1.0.0
+    ('deps/binkplayer_v1.0.1.tgz',
+     'https://github.com/bladecoder/blade-ink/releases/download/v1.0.0/binkplayer-v1.0.1-x86_64-macos.tar.gz',
+     'f40aa5a081167f7fa198b2eabf1fc7f33c0b6de9',
+     'darwin'),
+    ('deps/binkplayer_v1.0.1.tgz',
+     'https://github.com/bladecoder/blade-ink-rs/releases/download/v1.0.1/binkplayer-v1.0.1-x86_64-linux.tar.gz',
+     'cbcf157a246733ada2fe7664712410030ec77fcd',
+     'linux'),
+    ('deps/binkplayer_v1.0.1.zip',
+     'https://github.com/bladecoder/blade-ink-rs/releases/download/v1.0.1/binkplayer-v1.0.1-x86_64-windows.zip',
+     '68ecd70530020cecc5a31270879673b0d9e9c071',
+     'windows'),
+
 ]
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
