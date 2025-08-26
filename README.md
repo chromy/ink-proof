@@ -12,7 +12,7 @@
   <a href="https://chromy.github.io/ink-proof/#!/program/inklecate_v0.8.3" alt="inklecate_v0.8.3 test results"><img src="https://chromy.github.io/ink-proof/inklecate_v0.8.3.svg"/></a>
 </p>
 
-[Ink](https//github.com/inkle/ink) is an open-source narrative scripting language created by [Inkle](https://www.inklestudios.com).
+[Ink](https://github.com/inkle/ink) is an open-source narrative scripting language created by [Inkle](https://www.inklestudios.com).
 `ink-proof` is a tool for conformance testing Ink compilers and runtimes.
 
 Users author interactive stories as `.ink` [files](https://github.com/inkle/ink/blob/master/Documentation/WritingWithInk.md).
