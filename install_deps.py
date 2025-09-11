@@ -156,6 +156,12 @@ DEPS = [
      'c7818565141ec4a42bc0c6ccf415510c21729db2',
      'all'),
 
+    # Pink
+    ('deps/pink.zip',
+     'https://github.com/premek/pink/archive/8d753c3cce63f1d2d85bdb96d60f8161f63a5a69.zip',
+     '547e15b7aaa1a2a416ff9a5b6f5255a8acf61131',
+     'all'),
+
     # Tachyons
     ('deps/tachyons.min.css',
      'https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css',

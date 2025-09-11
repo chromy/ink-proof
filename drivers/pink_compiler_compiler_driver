@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+
+SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pink-runner.lua')
+ROOTDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PINKDIR = os.path.join(ROOTDIR, 'deps', 'pink')
+os.execlpe(SRC, 'pink-runner.lua', "compile", sys.argv[3], sys.argv[2], {"LUA_PATH": PINKDIR+'/?.lua'})
